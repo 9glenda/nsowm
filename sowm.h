@@ -1,4 +1,5 @@
 #include <X11/Xlib.h>
+#include "patches.h"
 
 #define win        (client *t=0, *c=list; c && t!=list->prev; t=c, c=c->next)
 #define ws_save(W) ws_list[W] = list
@@ -54,5 +55,11 @@ void win_prev(const Arg arg);
 void win_next(const Arg arg);
 void win_to_ws(const Arg arg);
 void ws_go(const Arg arg);
-
+void quit(int code);
+#if ROUNDED_CORNERS_PATCH
+void win_round_corners(Window w, int rad);
+#endif
+#if AUTOSTART_PATCH
+void auto_start(void);
+#endif
 static int xerror() { return 0; }

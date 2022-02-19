@@ -1,5 +1,5 @@
 // sowm - An itsy bitsy floating window manager.
-
+#include "patches.h"
 #include <X11/Xlib.h>
 #include <X11/XF86keysym.h>
 #include <X11/keysym.h>
@@ -7,7 +7,9 @@
 #include <stdlib.h>
 #include <signal.h>
 #include <unistd.h>
-
+#if ROUNDED_CORNERS_PATCH // ROUNDED_CORNERS_PATCH
+#include <X11/extensions/shape.h>
+#endif // ROUNDED_CORNERS_PATCH
 #include "sowm.h"
 
 static client       *list = {0}, *ws_list[10] = {0}, *cur;
@@ -62,6 +64,10 @@ void notify_motion(XEvent *e) {
         wy + (mouse.button == 1 ? yd : 0),
         MAX(1, ww + (mouse.button == 3 ? xd : 0)),
         MAX(1, wh + (mouse.button == 3 ? yd : 0)));
+    	#if ROUNDED_CORNERS_PATCH
+    	if (mouse.button == 3)
+			win_round_corners(mouse.subwindow, ROUND_CORNERS);
+	#endif
 }
 
 void key_press(XEvent *e) {
@@ -143,7 +149,51 @@ void win_fs(const Arg arg) {
     } else {
         XMoveResizeWindow(d, cur->w, cur->wx, cur->wy, cur->ww, cur->wh);
     }
+    #if ROUNDED_CORNERS_PATCH
+    win_round_corners(cur->w, cur->f ? 0 : ROUND_CORNERS);
+    #endif
 }
+#if AUTOSTART_PATCH
+void auto_start(void) {
+	// add autostart programms here
+	system("nitrogen --restore");
+}
+#endif
+
+#if ROUNDED_CORNERS_PATCH
+void win_round_corners(Window w, int rad) {
+    unsigned int ww, wh, dia = 2 * rad;
+
+    win_size(w, &(int){1}, &(int){1}, &ww, &wh);
+
+    if (ww < dia || wh < dia) return;
+
+    Pixmap mask = XCreatePixmap(d, w, ww, wh, 1);
+
+    if (!mask) return;
+
+    XGCValues xgcv;
+    GC shape_gc = XCreateGC(d, mask, 0, &xgcv);
+
+    if (!shape_gc) {
+        XFreePixmap(d, mask);
+        return;
+    }
+
+    XSetForeground(d, shape_gc, 0);
+    XFillRectangle(d, mask, shape_gc, 0, 0, ww, wh);
+    XSetForeground(d, shape_gc, 1);
+    XFillArc(d, mask, shape_gc, 0, 0, dia, dia, 0, 23040);
+    XFillArc(d, mask, shape_gc, ww-dia-1, 0, dia, dia, 0, 23040);
+    XFillArc(d, mask, shape_gc, 0, wh-dia-1, dia, dia, 0, 23040);
+    XFillArc(d, mask, shape_gc, ww-dia-1, wh-dia-1, dia, dia, 0, 23040);
+    XFillRectangle(d, mask, shape_gc, rad, 0, ww-dia, wh);
+    XFillRectangle(d, mask, shape_gc, 0, rad, ww, wh-dia);
+    XShapeCombineMask(d, w, ShapeBounding, 0, 0, mask, ShapeSet);
+    XFreePixmap(d, mask);
+    XFreeGC(d, shape_gc);
+}
+#endif
 
 void win_to_ws(const Arg arg) {
     int tmp = ws;
@@ -206,6 +256,9 @@ void configure_request(XEvent *e) {
         .sibling    = ev->above,
         .stack_mode = ev->detail
     });
+    #if ROUNDED_CORNERS_PATCH
+    win_round_corners(ev->window, ROUND_CORNERS);
+    #endif
 }
 
 void map_request(XEvent *e) {
@@ -217,7 +270,9 @@ void map_request(XEvent *e) {
     cur = list->prev;
 
     if (wx + wy == 0) win_center((Arg){0});
-
+    #if ROUNDED_CORNERS_PATCH
+    win_round_corners(w, ROUND_CORNERS);
+    #endif
     XMapWindow(d, w);
     win_focus(list->prev);
 }
@@ -229,6 +284,10 @@ void mapping_notify(XEvent *e) {
         XRefreshKeyboardMapping(ev);
         input_grab(root);
     }
+}
+
+void quit(int code) {
+	exit(code);
 }
 
 void run(const Arg arg) {
@@ -283,7 +342,9 @@ int main(void) {
     XSelectInput(d,  root, SubstructureRedirectMask);
     XDefineCursor(d, root, XCreateFontCursor(d, 68));
     input_grab(root);
-
+    #if AUTOSTART_PATCH
+    auto_start();
+    #endif
     while (1 && !XNextEvent(d, &ev)) // 1 && will forever be here.
         if (events[ev.type]) events[ev.type](&ev);
 }
