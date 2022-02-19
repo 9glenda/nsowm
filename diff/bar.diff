@@ -1,0 +1,101 @@
+From b93156b126918057c36d3a25561d672c8ad595d6 Mon Sep 17 00:00:00 2001
+From: tortea <tsukigva@gmail.com>
+Date: Wed, 26 Jan 2022 18:08:50 -0300
+Subject: [PATCH 1/2] add code
+
+---
+ config.def.h |  6 ++++++
+ sowm.c       | 19 +++++++++++++++----
+ 2 files changed, 21 insertions(+), 4 deletions(-)
+
+diff --git a/config.def.h b/config.def.h
+index cae2009..5fa686b 100644
+--- a/config.def.h
++++ b/config.def.h
+@@ -3,6 +3,12 @@
+ 
+ #define MOD Mod4Mask
+ 
++//bar stuff:
++/*
++#define GAP_SIZE bar_height
++const char* barname = "bar" // for lemonbar
++*/
++
+ const char* menu[]    = {"dmenu_run",      0};
+ const char* term[]    = {"st",             0};
+ const char* scrot[]   = {"scr",            0};
+diff --git a/sowm.c b/sowm.c
+index 96f8340..a7fa717 100644
+--- a/sowm.c
++++ b/sowm.c
+@@ -7,6 +7,8 @@
+ #include <stdlib.h>
+ #include <signal.h>
+ #include <unistd.h>
++#include <string.h>
++#include <stdio.h>
+ 
+ #include "sowm.h"
+ 
+@@ -138,8 +140,7 @@ void win_fs(const Arg arg) {
+ 
+     if ((cur->f = cur->f ? 0 : 1)) {
+         win_size(cur->w, &cur->wx, &cur->wy, &cur->ww, &cur->wh);
+-        XMoveResizeWindow(d, cur->w, 0, 0, sw, sh);
+-
++        XMoveResizeWindow(d, cur->w, 0, GAP_SIZE, sw, sh - GAP_SIZE);
+     } else {
+         XMoveResizeWindow(d, cur->w, cur->wx, cur->wy, cur->ww, cur->wh);
+     }
+@@ -188,7 +189,17 @@ void ws_go(const Arg arg) {
+ 
+     ws_sel(tmp);
+ 
+-    for win XUnmapWindow(d, c->w);
++    for win {
++		char* winame = NULL;
++		if (!XFetchName(d, c->w, &winame) || winame == NULL) {
++			XUnmapWindow(d, c->w);
++		} else {
++			if (strncmp(winame, barname, strlen(barname))) {
++				XUnmapWindow(d, c->w);
++			}
++			XFree(winame);
++		}
++    }
+ 
+     ws_sel(arg.i);
+ 
+@@ -279,7 +290,7 @@ int main(void) {
+     root  = RootWindow(d, s);
+     sw    = XDisplayWidth(d, s);
+     sh    = XDisplayHeight(d, s);
+-
++         
+     XSelectInput(d,  root, SubstructureRedirectMask);
+     XDefineCursor(d, root, XCreateFontCursor(d, 68));
+     input_grab(root);
+
+From 5d3faa5f87a30ae5a14bf97647a6a5c5b4bb3b9f Mon Sep 17 00:00:00 2001
+From: TsukiGva <71048858+TsukiGva2@users.noreply.github.com>
+Date: Wed, 26 Jan 2022 18:10:49 -0300
+Subject: [PATCH 2/2] removing stdio idk why i included that
+
+---
+ sowm.c | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/sowm.c b/sowm.c
+index a7fa717..d074c10 100644
+--- a/sowm.c
++++ b/sowm.c
+@@ -8,7 +8,6 @@
+ #include <signal.h>
+ #include <unistd.h>
+ #include <string.h>
+-#include <stdio.h>
+ 
+ #include "sowm.h"
+ 
+

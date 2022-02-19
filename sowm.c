@@ -10,6 +10,10 @@
 #if ROUNDED_CORNERS_PATCH // ROUNDED_CORNERS_PATCH
 #include <X11/extensions/shape.h>
 #endif // ROUNDED_CORNERS_PATCH
+#if BAR_PATCH
+#include <string.h>
+#include <stdio.h>
+#endif
 #include "sowm.h"
 
 static client       *list = {0}, *ws_list[10] = {0}, *cur;
@@ -144,8 +148,11 @@ void win_fs(const Arg arg) {
 
     if ((cur->f = cur->f ? 0 : 1)) {
         win_size(cur->w, &cur->wx, &cur->wy, &cur->ww, &cur->wh);
+	#if BAR_PATCH
+	XMoveResizeWindow(d, cur->w, 0, GAP_SIZE, sw, sh - GAP_SIZE);
+	#else
         XMoveResizeWindow(d, cur->w, 0, 0, sw, sh);
-
+	#endif
     } else {
         XMoveResizeWindow(d, cur->w, cur->wx, cur->wy, cur->ww, cur->wh);
     }
@@ -153,6 +160,7 @@ void win_fs(const Arg arg) {
     win_round_corners(cur->w, cur->f ? 0 : ROUND_CORNERS);
     #endif
 }
+
 #if AUTOSTART_PATCH
 void auto_start(void) {
 	// add autostart programms here
@@ -192,6 +200,35 @@ void win_round_corners(Window w, int rad) {
     XShapeCombineMask(d, w, ShapeBounding, 0, 0, mask, ShapeSet);
     XFreePixmap(d, mask);
     XFreeGC(d, shape_gc);
+}
+#endif
+
+#if RESIZE_PATCH
+void win_move(const Arg arg) {
+    int  r = arg.com[0][0] == 'r';
+    char m = arg.com[1][0];
+
+    win_size(cur->w, &wx, &wy, &ww, &wh);
+
+    XMoveResizeWindow(d, cur->w, \
+        wx + (r ? 0 : m == 'e' ?  arg.i : m == 'w' ? -arg.i : 0),
+        wy + (r ? 0 : m == 'n' ? -arg.i : m == 's' ?  arg.i : 0),
+        MAX(10, ww + (r ? m == 'e' ?  arg.i : m == 'w' ? -arg.i : 0 : 0)),
+        MAX(10, wh + (r ? m == 'n' ? -arg.i : m == 's' ?  arg.i : 0 : 0)));
+}
+#endif
+
+#if SPLIT_PATCH
+void split_win(const Arg arg) {
+     char m = arg.com[0][0];
+
+     win_size(cur->w, &wx, &wy, &ww, &wh);
+
+     XMoveResizeWindow(d, cur->w, \
+        (m == 'w' ? wx : m == 'e' ? (wx + ww / 2) : wx),
+        (m == 'n' ? wy : m == 's' ? (wy + wh / 2) : wy),
+        (m == 'w' ? (ww / 2) : m == 'e' ? (ww / 2) : ww),
+        (m == 'n' ? (wh / 2) : m == 's' ? (wh / 2) : wh));
 }
 #endif
 
@@ -238,7 +275,21 @@ void ws_go(const Arg arg) {
 
     ws_sel(tmp);
 
+    #if BAR_PATCH
+    for win {
+	char* winame = NULL;
+	if (!XFetchName(d, c->w, &winame) || winame == NULL) {
+		XUnmapWindow(d, c->w);
+	} else {
+		if (strncmp(winame, barname, strlen(barname))) {
+			XUnmapWindow(d, c->w);
+		}
+		XFree(winame);
+	}
+    }
+    #else
     for win XUnmapWindow(d, c->w);
+    #endif
 
     ws_sel(arg.i);
 
