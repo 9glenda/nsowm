@@ -26,4 +26,3 @@
 // polybar and lemonbar working in sowm
 // currently broken
 #define BAR_PATCH 0
-

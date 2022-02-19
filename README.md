@@ -1,4 +1,4 @@
-# sowm (*~~Simple~~ Shitty Opinionated Window Manager*)
+# nsowm (neo *~~Simple~~ Shitty Opinionated Window Manager*)
 
 <a href="https://user-images.githubusercontent.com/6799467/66687576-9747c200-ec72-11e9-947d-5b96753eab03.jpg"><img src="https://user-images.githubusercontent.com/6799467/66687576-9747c200-ec72-11e9-947d-5b96753eab03.jpg" width="43%" align="right"></a>
 
@@ -33,28 +33,28 @@ Patches available here: https://github.com/dylanaraps/sowm/pulls
 | combo                      | action                 |
 | -------------------------- | -----------------------|
 | `Mouse`                    | focus under cursor     |
-| `MOD4` + `Left Mouse`      | move window            |
-| `MOD4` + `Right Mouse`     | resize window          |
-| `MOD4` + `f`               | maximize toggle        |
-| `MOD4` + `c`               | center window          |
-| `MOD4` + `q`               | kill window            |
-| `MOD4` + `1-6`             | desktop swap           |
-| `MOD4` + `Shift` +`1-6`    | send window to desktop |
+| `MOD1` + `Left Mouse`      | move window            |
+| `MOD1` + `Right Mouse`     | resize window          |
+| `MOD1` + `f`               | maximize toggle        |
+| `MOD1` + `c`               | center window          |
+| `MOD1` + `Shift` + `c`     | kill window            |
+| `MOD1` + `1-6`             | desktop swap           |
+| `MOD1` + `Shift` +`1-6`    | send window to desktop |
 | `MOD1` + `TAB` (*alt-tab*) | focus cycle            |
 
 **Programs**
 
-| combo                    | action           | program        |
-| ------------------------ | ---------------- | -------------- |
-| `MOD4` + `Return`        | terminal         | `st`           |
-| `MOD4` + `d`             | dmenu            | `dmenu_run`    |
-| `MOD4` + `p`             | scrot            | `scr`          |
-| `MOD4` + `w`             | wallpaper cycler | `bud`          |
-| `XF86_AudioLowerVolume`  | volume down      | `amixer`       |
-| `XF86_AudioRaiseVolume`  | volume up        | `amixer`       |
-| `XF86_AudioMute`         | volume toggle    | `amixer`       |
-| `XF86_MonBrightnessUp`   | brightness up    | `bri`          |
-| `XF86_MonBrightnessDown` | brightness down  | `bri`          |
+| combo                       | action           | program        |
+| --------------------------- | ---------------- | -------------- |
+| `MOD1` + `Shift` + `Return` | terminal         | `alacritty`    |
+| `MOD4` + `d`                | dmenu            | `dmenu_run`    |
+| `MOD4` + `p`                | scrot            | `scr`          |
+| `MOD4` + `w`                | wallpaper cycler | `bud`          |
+| `XF86_AudioLowerVolume`     | volume down      | `amixer`       |
+| `XF86_AudioRaiseVolume`     | volume up        | `amixer`       |
+| `XF86_AudioMute`            | volume toggle    | `amixer`       |
+| `XF86_MonBrightnessUp`      | brightness up    | `bri`          |
+| `XF86_MonBrightnessDown`    | brightness down  | `bri`          |
 
 
 ## Dependencies
