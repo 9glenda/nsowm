@@ -1,0 +1,56 @@
+From 1dbee7e809ad377baf366d9760a950ce5e518932 Mon Sep 17 00:00:00 2001
+From: sourtaste000 <sourtaste000@gmail.com>
+Date: Thu, 6 May 2021 22:24:32 -0700
+Subject: [PATCH 1/2] add autostart
+
+---
+ sowm.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/sowm.c b/sowm.c
+index 96f8340..00f4505 100644
+--- a/sowm.c
++++ b/sowm.c
+@@ -239,6 +239,11 @@ void run(const Arg arg) {
+     execvp((char*)arg.com[0], (char**)arg.com);
+ }
+ 
++void runAutoStart(void) {
++    system("cd ~/.sowm; ./autostart_blocking.sh");
++    system("cd ~/.sowm; ./autostart.sh &");
++}
++
+ void input_grab(Window root) {
+     unsigned int i, j, modifiers[] = {0, LockMask, numlock, numlock|LockMask};
+     XModifierKeymap *modmap = XGetModifierMapping(d);
+@@ -283,6 +288,7 @@ int main(void) {
+     XSelectInput(d,  root, SubstructureRedirectMask);
+     XDefineCursor(d, root, XCreateFontCursor(d, 68));
+     input_grab(root);
++    runAutoStart();
+ 
+     while (1 && !XNextEvent(d, &ev)) // 1 && will forever be here.
+         if (events[ev.type]) events[ev.type](&ev);
+
+From 113a9877f8e9ad8396aa9a4117c8aca6596934e2 Mon Sep 17 00:00:00 2001
+From: sourtaste000 <sourtaste000@gmail.com>
+Date: Fri, 7 May 2021 21:05:06 -0700
+Subject: [PATCH 2/2] fix warning
+
+---
+ sowm.h | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/sowm.h b/sowm.h
+index b059f06..d9514e6 100644
+--- a/sowm.h
++++ b/sowm.h
+@@ -44,6 +44,7 @@ void notify_destroy(XEvent *e);
+ void notify_enter(XEvent *e);
+ void notify_motion(XEvent *e);
+ void run(const Arg arg);
++void runAutoStart(void);
+ void win_add(Window w);
+ void win_center(const Arg arg);
+ void win_del(Window w);
+
