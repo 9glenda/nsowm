@@ -14,6 +14,11 @@
 #define BORDER_NONE     "#000000"
 #define BORDER_WIDTH    10 //shadow
 
+#if BAR_PATCH
+#define GAP_SIZE 10
+const char* barname = "bar" // for lemonbar
+#endif
+
 const char* menu[]    = {"dmenu_run",      0};
 const char* term[]    = {"alacritty",      0};
 const char* scrot[]   = {"scr",            0};
@@ -43,13 +48,26 @@ static struct key keys[] = {
     {0,   XF86XK_AudioMute,         run, {.com = volmute}},
     {0,   XF86XK_MonBrightnessUp,   run, {.com = briup}},
     {0,   XF86XK_MonBrightnessDown, run, {.com = bridown}},
-    // patch
-    //{MOD|ShiftMask,  XK_k,  split_window,  {.com = (const char*[]){"n"}}},
-    //{MOD|ShiftMask,  XK_j,  split_window,  {.com = (const char*[]){"s"}}},
-    //{MOD|ShiftMask,  XK_l,  split_window,  {.com = (const char*[]){"e"}}},
-    //{MOD|ShiftMask,  XK_h,  split_window,  {.com = (const char*[]){"w"}}},
-    //patch
-    {MOD,           XK_1, ws_go,     {.i = 1}},
+
+    #if RESIZE_PATCH
+    {MOD,           XK_k,  win_move,  {.com = (const char*[]){"move",   "n"}, .i = 10}},
+    {MOD,           XK_j,  win_move,  {.com = (const char*[]){"move",   "s"}, .i = 10}},
+    {MOD,           XK_l,  win_move,  {.com = (const char*[]){"move",   "e"}, .i = 10}},
+    {MOD,           XK_h,  win_move,  {.com = (const char*[]){"move",   "w"}, .i = 10}},
+
+    {MOD|ShiftMask, XK_k,  win_move,  {.com = (const char*[]){"resize", "n"}, .i = 10}},
+    {MOD|ShiftMask, XK_j,  win_move,  {.com = (const char*[]){"resize", "s"}, .i = 10}},
+    {MOD|ShiftMask, XK_l,  win_move,  {.com = (const char*[]){"resize", "e"}, .i = 10}},
+    {MOD|ShiftMask, XK_h,  win_move,  {.com = (const char*[]){"resize", "w"}, .i = 10}},
+    #endif
+
+    #if SPLIT_PATCH
+    {MOD|ControlMask,  XK_k,  split_win,  {.com = (const char*[]){"n"}}},
+    {MOD|ControlMask,  XK_j,  split_win,  {.com = (const char*[]){"s"}}},
+    {MOD|ControlMask,  XK_l,  split_win,  {.com = (const char*[]){"e"}}},
+    {MOD|ControlMask,  XK_h,  split_win,  {.com = (const char*[]){"w"}}},
+    #endif
+
     {MOD|ShiftMask, XK_1, win_to_ws, {.i = 1}},
     {MOD,           XK_2, ws_go,     {.i = 2}},
     {MOD|ShiftMask, XK_2, win_to_ws, {.i = 2}},

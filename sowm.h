@@ -62,4 +62,11 @@ void win_round_corners(Window w, int rad);
 #if AUTOSTART_PATCH
 void auto_start(void);
 #endif
+#if RESIZE_PATCH
+void win_move(const Arg arg);
+#endif
+#if SPLIT_PATCH
+void split_win(const Arg arg);
+#endif
+
 static int xerror() { return 0; }
