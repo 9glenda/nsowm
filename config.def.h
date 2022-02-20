@@ -21,7 +21,7 @@ const char* barname = "bar" // for lemonbar
 
 const char* menu[]    = {"dmenu_run",      0};
 const char* term[]    = {"alacritty",      0};
-const char* scrot[]   = {"scr",            0};
+const char* scrot[]   = {"scrot",            0};
 const char* briup[]   = {"bri", "10", "+", 0};
 const char* bridown[] = {"bri", "10", "-", 0};
 const char* voldown[] = {"amixer", "sset", "Master", "5%-",         0};
@@ -68,6 +68,7 @@ static struct key keys[] = {
     {MOD|ControlMask,  XK_h,  split_win,  {.com = (const char*[]){"w"}}},
     #endif
 
+    {MOD,           XK_1, ws_go,     {.i = 1}},
     {MOD|ShiftMask, XK_1, win_to_ws, {.i = 1}},
     {MOD,           XK_2, ws_go,     {.i = 2}},
     {MOD|ShiftMask, XK_2, win_to_ws, {.i = 2}},
