@@ -4,22 +4,22 @@ PREFIX ?= /usr
 BINDIR ?= $(PREFIX)/bin
 CC     ?= gcc
 
-all: clean sowm
+all: clean nsowm
 
 config.h:
 	cp config.def.h config.h
 	cp patches.def.h patches.h
 
-sowm: sowm.c sowm.h config.h patches.h Makefile
+nsowm: nsowm.c nsowm.h config.h patches.h Makefile
 	$(CC) -O3 $(CFLAGS) -o $@ $< -lX11 -lXext $(LDFLAGS)
 
 install: all
-	install -Dm755 sowm $(DESTDIR)$(BINDIR)/sowm
+	install -Dm755 nsowm $(DESTDIR)$(BINDIR)/nsowm
 
 uninstall:
-	rm -f $(DESTDIR)$(BINDIR)/sowm
+	rm -f $(DESTDIR)$(BINDIR)/nsowm
 
 clean:	
-	rm -f sowm *.o patches.h config.h
+	rm -f nsowm *.o patches.h config.h
 
 .PHONY: all install uninstall clean
