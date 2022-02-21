@@ -33,8 +33,8 @@
 // https://patch-diff.githubusercontent.com/raw/dylanaraps/sowm/pull/91.patch
 // add a boreder around windows
 // BUGS:
-// doesn't work with ROUNDED_CORNERS_PATCH (just won't be visable)
-#define BORDER_PATCH 1
+// doesn't work with ROUNDED_CORNERS_PATCH (just won't be visable but sometimes it is)
+#define BORDER_PATCH 0
 
 // diff/windows.diff
 // https://patch-diff.githubusercontent.com/raw/dylanaraps/sowm/pull/88.patch
