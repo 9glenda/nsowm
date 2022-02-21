@@ -1,6 +1,9 @@
 #include <X11/Xlib.h>
 #include "patches.h"
 
+#if WINDOWS_PATCH
+#define NUM_WS 10
+#endif
 #define win        (client *t=0, *c=list; c && t!=list->prev; t=c, c=c->next)
 #define ws_save(W) ws_list[W] = list
 #define ws_sel(W)  list = ws_list[ws = W]
@@ -61,6 +64,9 @@ void win_prev(const Arg arg);
 void win_next(const Arg arg);
 void win_to_ws(const Arg arg);
 void ws_go(const Arg arg);
+#if WINDOWS_PATCH
+bool exists_win(Window w);
+#endif
 void quit(int code);
 #if ROUNDED_CORNERS_PATCH
 void win_round_corners(Window w, int rad);

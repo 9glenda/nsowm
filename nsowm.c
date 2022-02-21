@@ -14,9 +14,16 @@
 #include <X11/Xutil.h>
 #include <string.h>
 #endif
+#if WINDOWS_PATCH
+#include <stdbool.h>
+#endif
 #include "nsowm.h"
 
+#if WINDOWS_PATCH
+static client       *list = {0}, *ws_list[NUM_WS] = {0}, *cur;
+#else
 static client       *list = {0}, *ws_list[10] = {0}, *cur;
+#endif
 static int          ws = 1, sw, sh, wx, wy, numlock = 0;
 static unsigned int ww, wh;
 
@@ -401,9 +408,27 @@ void configure_request(XEvent *e) {
     #endif
 }
 
+#if WINDOWS_PATCH
+bool exists_win(Window w) {
+    int tmp = ws;
+    for (int i = 0; i < NUM_WS; ++i) {
+        if (i == tmp) continue;
+        ws_sel(i);
+        for win if (c->w == w) {
+            ws_sel(tmp);
+            return true;
+        }
+    }
+    ws_sel(tmp);
+    return false;
+}
+#endif
+
 void map_request(XEvent *e) {
     Window w = e->xmaprequest.window;
-
+    #if WINDOWS_PATCH
+    if (exists_win(w)) return;
+    #endif
     XSelectInput(d, w, StructureNotifyMask|EnterWindowMask);
     win_size(w, &wx, &wy, &ww, &wh);
     win_add(w);

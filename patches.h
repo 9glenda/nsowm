@@ -32,4 +32,17 @@
 // diff/fixedborders.diff
 // https://patch-diff.githubusercontent.com/raw/dylanaraps/sowm/pull/91.patch
 // add a boreder around windows
+// BUGS:
+// doesn't work with ROUNDED_CORNERS_PATCH (just won't be visable)
 #define BORDER_PATCH 1
+
+// diff/windows.diff
+// https://patch-diff.githubusercontent.com/raw/dylanaraps/sowm/pull/88.patch
+// Force windows to be unique among all workspaces
+// This is intended to correct issue #44 where opening a browser window in
+// another workspace when a browser window is already open causes incorrect
+// behavior.
+// In order to correct the problem, a function exists_win was added to prevent
+// duplicate windows being inserted into other workspaces. A global macro
+// constant NUM_WS was also required to ensure proper bounds in exists_win.
+#define WINDOWS_PATCH 1
