@@ -1,30 +1,29 @@
-# nsowm (neo *~~Simple~~ Shitty Opinionated Window Manager*)
+# nsowm (Neo *~~Simple~~ Shitty Opinionated Window Manager*)
 
 <a href="https://user-images.githubusercontent.com/6799467/66687576-9747c200-ec72-11e9-947d-5b96753eab03.jpg"><img src="https://user-images.githubusercontent.com/6799467/66687576-9747c200-ec72-11e9-947d-5b96753eab03.jpg" width="43%" align="right"></a>
 
 An itsy bitsy floating window manager (*220~ sloc!*).
 
-- Floating only.
+- Easily enabling/disabling patches 
+- Basic manual tiling functionality (through patches)
 - Fullscreen toggle.
 - Window centering.
 - Mix of mouse and keyboard workflow.
 - Focus with cursor.
-- Rounded corners (*[through patch](https://github.com/dylanaraps/sowm/pull/58)*)
-- Titlebars (*[through patch](https://github.com/dylanaraps/sowm/pull/57)*)
+- Rounded corners 
+- Titlebars 
 
 <a href="https://user-images.githubusercontent.com/6799467/66687814-8cd9f800-ec73-11e9-97b8-6ae77876bd1b.jpg"><img src="https://user-images.githubusercontent.com/6799467/66687814-8cd9f800-ec73-11e9-97b8-6ae77876bd1b.jpg" width="43%" align="right"></a>
 
 - Alt-Tab window focusing.
 - All windows die on exit.
-- No window borders.
+- window borders 
 - [No ICCCM](https://web.archive.org/web/20190617214524/https://raw.githubusercontent.com/kfish/xsel/1a1c5edf0dc129055f7764c666da2dd468df6016/rant.txt).
 - No EWMH.
 - etc etc etc
 
 
 <br>
-
-Patches available here: https://github.com/dylanaraps/sowm/pulls
 
 ## Default Keybindings
 
@@ -65,7 +64,7 @@ Patches available here: https://github.com/dylanaraps/sowm/pulls
 ## Installation
 
 1) Copy `config.def.h` to `config.h` and modify it to suit your needs.
-2) Run `make` to build `sowm`.
+2) Run `make` to build `nsowm`.
 3) Copy it to your path or run `make install`.
     - `DESTDIR` and `PREFIX` are supported.
 4) (Optional) Apply patch with `git apply patches/patch-name`
@@ -76,9 +75,9 @@ If you are using GDM, save the following to `/usr/share/xsessions/sowm.desktop`.
 
 ```
 [Desktop Entry]
-Name=sowm
+Name=nsowm
 Comment=This session runs sowm as desktop manager
-Exec=sowm
+Exec=nsowm
 Type=Application
 ```
 
