@@ -19,6 +19,11 @@
 const char* barname = "bar" // for lemonbar
 #endif
 
+#if TITLE_PATCH
+#define TH  90
+#define TC  255 + (255<<8) + (255<<16)
+#endif
+
 const char* menu[]    = {"dmenu_run",      0};
 const char* term[]    = {"alacritty",      0};
 const char* scrot[]   = {"scrot",            0};

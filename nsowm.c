@@ -14,6 +14,10 @@
 #include <string.h>
 #include <stdio.h>
 #endif
+#if TITLE_PATCH
+#include <X11/Xutil.h>
+#include <string.h>
+#endif
 #include "nsowm.h"
 
 static client       *list = {0}, *ws_list[10] = {0}, *cur;
@@ -49,6 +53,31 @@ void notify_destroy(XEvent *e) {
     if (list) win_focus(list->prev);
 }
 
+#if TITLE_PATCH
+void title_add(client *c) {
+    if (c->t) return;
+
+    XClassHint cl;
+    XGetClassHint(d, c->w, &cl);
+
+    if (!strcmp(cl.res_name, "no-title")) return;
+
+    win_size(c->w, &wx, &wy, &ww, &wh);
+    c->t = XCreateSimpleWindow(d, root, wx, wy - TH, ww, TH, 0, TC, TC);
+   XMapWindow(d, c->t);
+}
+
+void title_del(client *c) {
+    if (!c->t) return;
+
+    XUnmapWindow(d, c->t);
+    XDestroyWindow(d, c->t);
+    c->t = 0;
+}
+#endif
+
+
+
 void notify_enter(XEvent *e) {
     while(XCheckTypedEvent(d, EnterNotify, e));
 
@@ -57,7 +86,12 @@ void notify_enter(XEvent *e) {
 
 void notify_motion(XEvent *e) {
     if (!mouse.subwindow || cur->f) return;
-
+    #if TITLE_PATCH
+    if (mouse.subwindow == cur->t) {
+        mouse.subwindow = cur->w;
+        win_size(cur->w, &wx, &wy, &ww, &wh);
+    }
+    #endif
     while(XCheckTypedEvent(d, MotionNotify, e));
 
     int xd = e->xbutton.x_root - mouse.x_root;
@@ -68,7 +102,14 @@ void notify_motion(XEvent *e) {
         wy + (mouse.button == 1 ? yd : 0),
         MAX(1, ww + (mouse.button == 3 ? xd : 0)),
         MAX(1, wh + (mouse.button == 3 ? yd : 0)));
-    	#if ROUNDED_CORNERS_PATCH
+    	#if TITLE_PATCH
+        if (cur->t) XMoveResizeWindow(d, cur->t,
+
+	   wx + (mouse.button == 1 ? xd : 0),
+           wy + (mouse.button == 1 ? yd : 0) - TH,
+           MAX(1, ww + (mouse.button == 3 ? xd : 0)), TH);
+        #endif
+        #if ROUNDED_CORNERS_PATCH
     	if (mouse.button == 3)
 			win_round_corners(mouse.subwindow, ROUND_CORNERS);
 	#endif
@@ -127,7 +168,10 @@ void win_del(Window w) {
     if (list == x)    list = x->next;
     if (x->next)      x->next->prev = x->prev;
     if (x->prev)      x->prev->next = x->next;
-
+    
+    #if TITLE_PATCH
+    title_del(x);
+    #endif
     free(x);
     ws_save(ws);
 }
@@ -141,6 +185,9 @@ void win_center(const Arg arg) {
 
     win_size(cur->w, &(int){0}, &(int){0}, &ww, &wh);
     XMoveWindow(d, cur->w, (sw - ww) / 2, (sh - wh) / 2);
+    #if TITLE_PATCH
+    if (cur->t) XMoveWindow(d, cur->t, (sw - ww) / 2, (sh - wh - TH * 2) / 2);
+    #endif
 }
 
 void win_fs(const Arg arg) {
@@ -153,8 +200,15 @@ void win_fs(const Arg arg) {
 	#else
         XMoveResizeWindow(d, cur->w, 0, 0, sw, sh);
 	#endif
+        #if TITLE_PATCH
+	XRaiseWindow(d, cur->w);
+	title_del(cur);
+        #endif
     } else {
         XMoveResizeWindow(d, cur->w, cur->wx, cur->wy, cur->ww, cur->wh);
+	#if TITLE_PATCH
+	title_add(cur);
+	#endif
     }
     #if ROUNDED_CORNERS_PATCH
     win_round_corners(cur->w, cur->f ? 0 : ROUND_CORNERS);
@@ -240,6 +294,9 @@ void win_to_ws(const Arg arg) {
     ws_sel(arg.i);
     win_add(cur->w);
     ws_save(arg.i);
+    #if TITLE_PATCH
+    title_del(cur);
+    #endif
 
     ws_sel(tmp);
     win_del(cur->w);
@@ -251,7 +308,10 @@ void win_to_ws(const Arg arg) {
 
 void win_prev(const Arg arg) {
     if (!cur) return;
-
+    #if TITLE_PATCH
+    if (cur->prev->t)
+	    XRaiseWindow(d, cur->prev->t);
+    #endif
     XRaiseWindow(d, cur->prev->w);
     win_focus(cur->prev);
 }
@@ -272,7 +332,12 @@ void ws_go(const Arg arg) {
     ws_sel(arg.i);
 
     for win XMapWindow(d, c->w);
-
+    #if TITLE_PATCH
+    for win{
+    	XMapWindow(d,c->w);
+	title_add(c);
+    }
+    #endif
     ws_sel(tmp);
 
     #if BAR_PATCH
@@ -287,8 +352,15 @@ void ws_go(const Arg arg) {
 		XFree(winame);
 	}
     }
-    #else
+    #endif
+    #if !BAR_PATCH || !TITLE_PATCH
     for win XUnmapWindow(d, c->w);
+    #endif
+    #if TITLE_PATCH
+    for win{
+    	XMapWindow(d,c->w);
+	title_add(c);
+    }
     #endif
 
     ws_sel(arg.i);
@@ -326,6 +398,9 @@ void map_request(XEvent *e) {
     #endif
     XMapWindow(d, w);
     win_focus(list->prev);
+    #if TITLE_PATCH
+    title_add(cur);
+    #endif
 }
 
 void mapping_notify(XEvent *e) {

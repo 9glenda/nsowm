@@ -26,3 +26,8 @@
 // polybar and lemonbar working in sowm
 // currently broken
 #define BAR_PATCH 0
+
+// diff/title.diff
+// https://github.com/dylanaraps/sowm/pull/57
+// white title bar (pointless)
+#define TITLE_PATCH 1
