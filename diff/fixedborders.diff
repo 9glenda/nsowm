@@ -1,0 +1,113 @@
+From 8f15fdb82bc2b2b25d12efd282efef41dc01ccd1 Mon Sep 17 00:00:00 2001
+From: Unixsys <unixsys@github.com>
+Date: Sun, 5 Jul 2020 19:05:08 -0500
+Subject: [PATCH 1/2] Add changes for the patch
+
+---
+ config.def.h |  2 ++
+ sowm.c       | 15 +++++++++++++--
+ sowm.h       |  1 +
+ 3 files changed, 16 insertions(+), 2 deletions(-)
+
+diff --git a/config.def.h b/config.def.h
+index cae2009..4f022f7 100644
+--- a/config.def.h
++++ b/config.def.h
+@@ -2,6 +2,8 @@
+ #define CONFIG_H
+ 
+ #define MOD Mod4Mask
++#define BORDER_COLOR "#00FF00"
++#define BORDER_WIDTH 1
+ 
+ const char* menu[]    = {"dmenu_run",      0};
+ const char* term[]    = {"st",             0};
+diff --git a/sowm.c b/sowm.c
+index b4a39dd..145d311 100644
+--- a/sowm.c
++++ b/sowm.c
+@@ -14,6 +14,7 @@ static client       *list = {0}, *ws_list[10] = {0}, *cur;
+ static int          ws = 1, sw, sh, wx, wy, numlock = 0;
+ static unsigned int ww, wh;
+ 
++static int          s;
+ static Display      *d;
+ static XButtonEvent mouse;
+ static Window       root;
+@@ -31,6 +32,12 @@ static void (*events[LASTEvent])(XEvent *e) = {
+ 
+ #include "config.h"
+ 
++unsigned long getcolor(const char *col) {
++    Colormap m = DefaultColormap(d, s);
++    XColor c;
++    return (!XAllocNamedColor(d, m, col, &c, &c))?0:c.pixel;
++}
++
+ void win_focus(client *c) {
+     cur = c;
+     XSetInputFocus(d, cur->w, RevertToParent, CurrentTime);
+@@ -44,6 +51,7 @@ void notify_destroy(XEvent *e) {
+ 
+ void notify_enter(XEvent *e) {
+     while(XCheckTypedEvent(d, EnterNotify, e));
++    while(XCheckTypedWindowEvent(d, mouse.subwindow, MotionNotify, e));
+ 
+     for win if (c->w == e->xcrossing.window) win_focus(c);
+ }
+@@ -214,6 +222,9 @@ void map_request(XEvent *e) {
+     win_size(w, &wx, &wy, &ww, &wh);
+     win_add(w);
+     cur = list->prev;
++    XSetWindowBorder(d, w, getcolor(BORDER_COLOR));
++    XConfigureWindow(d, w, CWBorderWidth, &(XWindowChanges){.border_width = BORDER_WIDTH});
++    
+ 
+     if (wx + wy == 0) win_center((Arg){0});
+ 
+@@ -265,8 +276,8 @@ int main(void) {
+ 
+     int s = DefaultScreen(d);
+     root  = RootWindow(d, s);
+-    sw    = XDisplayWidth(d, s);
+-    sh    = XDisplayHeight(d, s);
++    sw    = XDisplayWidth(d, s) - (2*BORDER_WIDTH);
++    sh    = XDisplayHeight(d, s) - (2*BORDER_WIDTH);
+ 
+     XSelectInput(d,  root, SubstructureRedirectMask);
+     XDefineCursor(d, root, XCreateFontCursor(d, 68));
+diff --git a/sowm.h b/sowm.h
+index 455ed93..08af907 100644
+--- a/sowm.h
++++ b/sowm.h
+@@ -33,6 +33,7 @@ typedef struct client {
+     Window w;
+ } client;
+ 
++unsigned long getcolor(const char *col);
+ void button_press(XEvent *e);
+ void button_release(XEvent *e);
+ void configure_request(XEvent *e);
+
+From 526f7148e00bbed51b09c67292c8056c0e5b633c Mon Sep 17 00:00:00 2001
+From: Unixsys <unixsys@github.com>
+Date: Fri, 10 Jul 2020 15:46:10 -0500
+Subject: [PATCH 2/2] add small fix in response to @viyoriya
+
+---
+ sowm.c | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/sowm.c b/sowm.c
+index 145d311..2a25c57 100644
+--- a/sowm.c
++++ b/sowm.c
+@@ -274,7 +274,6 @@ int main(void) {
+     signal(SIGCHLD, SIG_IGN);
+     XSetErrorHandler(xerror);
+ 
+-    int s = DefaultScreen(d);
+     root  = RootWindow(d, s);
+     sw    = XDisplayWidth(d, s) - (2*BORDER_WIDTH);
+     sh    = XDisplayHeight(d, s) - (2*BORDER_WIDTH);
+

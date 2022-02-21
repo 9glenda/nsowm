@@ -10,10 +10,6 @@
 #if ROUNDED_CORNERS_PATCH // ROUNDED_CORNERS_PATCH
 #include <X11/extensions/shape.h>
 #endif // ROUNDED_CORNERS_PATCH
-#if BAR_PATCH
-#include <string.h>
-#include <stdio.h>
-#endif
 #if TITLE_PATCH
 #include <X11/Xutil.h>
 #include <string.h>
@@ -24,6 +20,9 @@ static client       *list = {0}, *ws_list[10] = {0}, *cur;
 static int          ws = 1, sw, sh, wx, wy, numlock = 0;
 static unsigned int ww, wh;
 
+#if BORDER_PATCH
+static int s;
+#endif
 static Display      *d;
 static XButtonEvent mouse;
 static Window       root;
@@ -41,6 +40,14 @@ static void (*events[LASTEvent])(XEvent *e) = {
 };
 
 #include "config.h"
+
+#if BORDER_PATCH
+unsigned long getcolor(const char *col) {
+	Colormap m = DefaultColormap(d, s);
+	XColor c;
+	return (!XAllocNamedColor(d, m, col, &c, &c))?0:c.pixel;
+}
+#endif
 
 void win_focus(client *c) {
     cur = c;
@@ -64,7 +71,7 @@ void title_add(client *c) {
 
     win_size(c->w, &wx, &wy, &ww, &wh);
     c->t = XCreateSimpleWindow(d, root, wx, wy - TH, ww, TH, 0, TC, TC);
-   XMapWindow(d, c->t);
+    XMapWindow(d, c->t);
 }
 
 void title_del(client *c) {
@@ -80,18 +87,21 @@ void title_del(client *c) {
 
 void notify_enter(XEvent *e) {
     while(XCheckTypedEvent(d, EnterNotify, e));
-
+    #if BORDER_PATCH
+    while(XCheckTypedWindowEvent(d, mouse.subwindow, MotionNotify, e));
+    #endif
+    #if TITLE_PATCH
+    if (mouse.subwindow == cur->t) {
+	    mouse.subwindow = cur->w;
+	    win_size(cur->w, &wx, &wy, &ww, &wh);
+    }
+    #endif
     for win if (c->w == e->xcrossing.window) win_focus(c);
 }
 
 void notify_motion(XEvent *e) {
     if (!mouse.subwindow || cur->f) return;
-    #if TITLE_PATCH
-    if (mouse.subwindow == cur->t) {
-        mouse.subwindow = cur->w;
-        win_size(cur->w, &wx, &wy, &ww, &wh);
-    }
-    #endif
+
     while(XCheckTypedEvent(d, MotionNotify, e));
 
     int xd = e->xbutton.x_root - mouse.x_root;
@@ -110,8 +120,9 @@ void notify_motion(XEvent *e) {
            MAX(1, ww + (mouse.button == 3 ? xd : 0)), TH);
         #endif
         #if ROUNDED_CORNERS_PATCH
-    	if (mouse.button == 3)
-			win_round_corners(mouse.subwindow, ROUND_CORNERS);
+    	if (mouse.button == 3) {
+		win_round_corners(mouse.subwindow, ROUND_CORNERS);
+	}
 	#endif
 }
 
@@ -177,7 +188,21 @@ void win_del(Window w) {
 }
 
 void win_kill(const Arg arg) {
+    #if NORMALKILL_PATCH
+    if (!cur) return;
+
+    XEvent ev = { .type = ClientMessage };
+
+    ev.xclient.window       = cur->w;
+    ev.xclient.format       = 32;
+    ev.xclient.message_type = XInternAtom(d, "WM_PROTOCOLS", True);
+    ev.xclient.data.l[0]    = XInternAtom(d, "WM_DELETE_WINDOW", True);
+    ev.xclient.data.l[1]    = CurrentTime;
+
+    XSendEvent(d, cur->w, False, NoEventMask, &ev);
+    #else
     if (cur) XKillClient(d, cur->w);
+    #endif
 }
 
 void win_center(const Arg arg) {
@@ -195,11 +220,7 @@ void win_fs(const Arg arg) {
 
     if ((cur->f = cur->f ? 0 : 1)) {
         win_size(cur->w, &cur->wx, &cur->wy, &cur->ww, &cur->wh);
-	#if BAR_PATCH
-	XMoveResizeWindow(d, cur->w, 0, GAP_SIZE, sw, sh - GAP_SIZE);
-	#else
         XMoveResizeWindow(d, cur->w, 0, 0, sw, sh);
-	#endif
         #if TITLE_PATCH
 	XRaiseWindow(d, cur->w);
 	title_del(cur);
@@ -320,6 +341,12 @@ void win_next(const Arg arg) {
     if (!cur) return;
 
     XRaiseWindow(d, cur->next->w);
+
+    #if TITLE_PATCH
+    if (cur->next->w); {
+	    XRaiseWindow(d, cur->next->t);
+    }
+    #endif
     win_focus(cur->next);
 }
 
@@ -331,7 +358,9 @@ void ws_go(const Arg arg) {
     ws_save(ws);
     ws_sel(arg.i);
 
+    #if !TITLE_PATCH
     for win XMapWindow(d, c->w);
+    #endif
     #if TITLE_PATCH
     for win{
     	XMapWindow(d,c->w);
@@ -340,26 +369,14 @@ void ws_go(const Arg arg) {
     #endif
     ws_sel(tmp);
 
-    #if BAR_PATCH
-    for win {
-	char* winame = NULL;
-	if (!XFetchName(d, c->w, &winame) || winame == NULL) {
-		XUnmapWindow(d, c->w);
-	} else {
-		if (strncmp(winame, barname, strlen(barname))) {
-			XUnmapWindow(d, c->w);
-		}
-		XFree(winame);
-	}
-    }
-    #endif
-    #if !BAR_PATCH || !TITLE_PATCH
+
+    #if !TITLE_PATCH
     for win XUnmapWindow(d, c->w);
     #endif
     #if TITLE_PATCH
     for win{
-    	XMapWindow(d,c->w);
-	title_add(c);
+    	XUnmapWindow(d, c->w);
+	title_del(c);
     }
     #endif
 
@@ -391,7 +408,10 @@ void map_request(XEvent *e) {
     win_size(w, &wx, &wy, &ww, &wh);
     win_add(w);
     cur = list->prev;
-
+    #if BORDER_PATCH
+    XSetWindowBorder(d, w, getcolor(BORDER_COLOR));
+    XConfigureWindow(d, w, CWBorderWidth, &(XWindowChanges){.border_width = BORDER_WIDTH});
+    #endif
     if (wx + wy == 0) win_center((Arg){0});
     #if ROUNDED_CORNERS_PATCH
     win_round_corners(w, ROUND_CORNERS);
@@ -460,11 +480,19 @@ int main(void) {
     signal(SIGCHLD, SIG_IGN);
     XSetErrorHandler(xerror);
 
+    
+    #if !BORDER_PATCH
     int s = DefaultScreen(d);
+    #endif
+
     root  = RootWindow(d, s);
+    #if BORDER_PATCH
+    sw    = XDisplayWidth(d, s) - (2*BORDER_WIDTH);
+    sh    = XDisplayHeight(d, s) - (2*BORDER_WIDTH);
+    #else
     sw    = XDisplayWidth(d, s);
     sh    = XDisplayHeight(d, s);
-
+    #endif
     XSelectInput(d,  root, SubstructureRedirectMask);
     XDefineCursor(d, root, XCreateFontCursor(d, 68));
     input_grab(root);

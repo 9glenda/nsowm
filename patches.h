@@ -1,5 +1,3 @@
-
-
 // diff/rounded_corners.diff
 // https://patch-diff.githubusercontent.com/raw/dylanaraps/sowm/pull/58.patch
 // rounded corners for windows
@@ -21,13 +19,17 @@
 // split windows
 #define SPLIT_PATCH 1
 
-// diff/bar.diff
-// https://patch-diff.githubusercontent.com/raw/dylanaraps/sowm/pull/110.patch
-// polybar and lemonbar working in sowm
-// currently broken
-#define BAR_PATCH 0
-
 // diff/title.diff
 // https://github.com/dylanaraps/sowm/pull/57
 // white title bar (pointless)
-#define TITLE_PATCH 1
+#define TITLE_PATCH 0
+
+// diff/normalkill.diff
+// https://raw.githubusercontent.com/dylanaraps/sowm-patches/master/patches/sowm-normal-kill.patch
+// In some cases all windows of a programm get cilled if you try to kill one without this patch
+#define NORMALKILL_PATCH 1
+
+// diff/fixedborders.diff
+// https://patch-diff.githubusercontent.com/raw/dylanaraps/sowm/pull/91.patch
+// add a boreder around windows
+#define BORDER_PATCH 1

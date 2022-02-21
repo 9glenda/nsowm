@@ -14,14 +14,14 @@
 #define BORDER_NONE     "#000000"
 #define BORDER_WIDTH    10 //shadow
 
-#if BAR_PATCH
-#define GAP_SIZE 10
-const char* barname = "bar" // for lemonbar
-#endif
-
 #if TITLE_PATCH
 #define TH  90
 #define TC  255 + (255<<8) + (255<<16)
+#endif
+
+#if BORDER_PATCH
+#define BORDER_COLOR "#00FF00"
+#define BORDER_WIDTH 10
 #endif
 
 const char* menu[]    = {"dmenu_run",      0};
