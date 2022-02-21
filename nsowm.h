@@ -31,7 +31,11 @@ typedef struct client {
     struct client *next, *prev;
     int f, wx, wy;
     unsigned int ww, wh;
+#if TITLE_PATCH
+    Window w,t;
+    #else
     Window w;
+    #endif
 } client;
 
 void button_press(XEvent *e);
@@ -67,6 +71,10 @@ void win_move(const Arg arg);
 #endif
 #if SPLIT_PATCH
 void split_win(const Arg arg);
+#endif
+#if TITLE_PATCH
+void title_add(client *c);
+void title_del(client *c);
 #endif
 
 static int xerror() { return 0; }
