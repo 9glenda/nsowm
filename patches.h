@@ -63,6 +63,7 @@
 // Mappings for other mouse buttons (Button4, etc) are also possible and can use any existing function, e.g. run to run a command.
 // BROKEN no mouse bindings at all		FIXME
 #define MOUSE_MAPPING_PATCH 0
-/// no diff
-// no URL
-//                    
+/// diff/2bswm-style.diff
+// https://github.com/dylanaraps/sowm-patches/blob/master/patches/sowm-2bswm-style.patch%7E087e2767361e60a143b3f00cbe7a7486b032af4a
+// I don't know
+//#define 2BSWM_STYLE_PATCH 1
