@@ -87,7 +87,7 @@ void last_ws_go(const Arg arg);
 #if NEXT_WS_PATCH
 void ws_go_add(const Arg arg);
 #endif
-void quit(int code);
+void quit(const Arg arg);
 #if ROUNDED_CORNERS_PATCH
 void win_round_corners(Window w, int rad);
 #endif
