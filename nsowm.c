@@ -470,6 +470,13 @@ void win_init(void) {
         XMapWindow(d, child[i]);
         win_add(child[i]);
     }
+    if (CYCLE_WS) {
+        for (i = 1; i < WORKSPACE_COUNT + 1; i++) {
+            int current = ws;
+            ws_go((Arg){.i = i});
+            ws_go((Arg){.i = current});
+        }
+    }
 }
 #endif
 
