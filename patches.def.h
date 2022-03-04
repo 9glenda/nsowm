@@ -1,7 +1,7 @@
 // diff/rounded_corners.diff
 // https://patch-diff.githubusercontent.com/raw/dylanaraps/sowm/pull/58.patch
 // rounded corners for windows
-#define ROUNDED_CORNERS_PATCH 1
+#define ROUNDED_CORNERS_PATCH 0
 
 // diff/autostart.diff
 // https://patch-diff.githubusercontent.com/raw/dylanaraps/sowm/pull/106.patch
@@ -12,6 +12,7 @@
 // https://patch-diff.githubusercontent.com/raw/dylanaraps/sowm/pull/59.patch
 // Move window with mod + h,j,k,l
 // Resize window with mod|shift + h,j,k,l
+// in conflict with MOUSE_MAPPING_PATCH 		FIXME
 #define RESIZE_PATCH 1
 
 // diff/split.diff
@@ -34,7 +35,7 @@
 // add a boreder around windows
 // BUGS:
 // doesn't work with ROUNDED_CORNERS_PATCH (just won't be visable but sometimes it is)
-#define BORDER_PATCH 0
+#define BORDER_PATCH 1
 
 // diff/windows.diff
 // https://patch-diff.githubusercontent.com/raw/dylanaraps/sowm/pull/88.patch
@@ -60,4 +61,9 @@
 // Note that raising the window is a separate function (new function: win_raise) which doesn't necessarily need to be attached to an operation. For example, you could have a mapping to move a window without raising it.
 
 // Mappings for other mouse buttons (Button4, etc) are also possible and can use any existing function, e.g. run to run a command.
-#define MOUSE_MAPPING 0
+// BROKEN no mouse bindings at all		FIXME
+#define MOUSE_MAPPING_PATCH 0
+/// diff/2bswm-style.diff
+// https://github.com/dylanaraps/sowm-patches/blob/master/patches/sowm-2bswm-style.patch%7E087e2767361e60a143b3f00cbe7a7486b032af4a
+// I don't know
+#define 2BSWM_STYLE_PATCH 1

@@ -1,4 +1,4 @@
-// sowm - An itsy bitsy floating window manager.
+// nsowm - An itsy bitsy floating window manager.
 #include "patches.h"
 #include <X11/Xlib.h>
 #include <X11/XF86keysym.h>
@@ -32,6 +32,9 @@ static int s;
 #endif
 static Display      *d;
 static XButtonEvent mouse;
+#if MOUSE_MAPPING_PATCH
+enum { MOVING = 1, SIZING = 2 } drag;
+#endif
 static Window       root;
 
 static void (*events[LASTEvent])(XEvent *e) = {
@@ -107,7 +110,11 @@ void notify_enter(XEvent *e) {
 }
 
 void notify_motion(XEvent *e) {
+    #if MOUSE_MAPPING_PATCH
+    if (!mouse.subwindow || !drag || cur->f) return;
+    #else
     if (!mouse.subwindow || cur->f) return;
+    #endif
 
     while(XCheckTypedEvent(d, MotionNotify, e));
 
@@ -115,10 +122,17 @@ void notify_motion(XEvent *e) {
     int yd = e->xbutton.y_root - mouse.y_root;
 
     XMoveResizeWindow(d, mouse.subwindow,
+	#if MOUSE_MAPPING_PATCH
+	wx + (drag == MOVING ? xd : 0),
+	wy + (drag == MOVING ? yd : 0),
+	MAX(1, ww + (drag == SIZING ? xd : 0)),
+	MAX(1, wh + (drag == SIZING ? yd : 0)));
+	#else
         wx + (mouse.button == 1 ? xd : 0),
         wy + (mouse.button == 1 ? yd : 0),
         MAX(1, ww + (mouse.button == 3 ? xd : 0)),
         MAX(1, wh + (mouse.button == 3 ? yd : 0)));
+	#endif
     	#if TITLE_PATCH
         if (cur->t) XMoveResizeWindow(d, cur->t,
 
@@ -141,14 +155,50 @@ void key_press(XEvent *e) {
             mod_clean(keys[i].mod) == mod_clean(e->xkey.state))
             keys[i].function(keys[i].arg);
 }
+#if MOUSE_MAPPING_PATCH
+void win_move(const Arg arg) {
+   win_size(mouse.subwindow, &wx, &wy, &ww, &wh);
+   drag = MOVING;
+}
+
+void win_resize(const Arg arg) {
+   win_size(mouse.subwindow, &wx, &wy, &ww, &wh);
+   drag = SIZING;
+}
+#endif
+
+
 
 void button_press(XEvent *e) {
     if (!e->xbutton.subwindow) return;
-
+    #if MOUSE_MAPPING_PATCH
+    unsigned mod = mod_clean(e->xbutton.state);
+    #else
     win_size(e->xbutton.subwindow, &wx, &wy, &ww, &wh);
     XRaiseWindow(d, e->xbutton.subwindow);
+    #endif
+ 
     mouse = e->xbutton;
+    #if MOUSE_MAPPING_PATCH
+    drag = 0;
+    for (unsigned int i = 0; i < sizeof(buttons)/sizeof(buttons); ++i)
+        if (buttons[i].button == e->xbutton.button &&
+            mod_clean(buttons[i].mod) == mod)
+            buttons[i].function(buttons[i].arg);
+    #endif
 }
+
+#if MOUSE_MAPPING_PATCH
+void win_lower(const Arg arg) {
+   if (!cur) return; 
+   XLowerWindow(d, cur->w);
+}
+
+void win_raise(const Arg arg) {
+   if (!cur) return; 
+   XRaiseWindow(d, cur->w);
+}
+#endif
 
 void button_release(XEvent *e) {
     mouse.subwindow = 0;
@@ -487,10 +537,15 @@ void input_grab(Window root) {
             for (j = 0; j < sizeof(modifiers)/sizeof(*modifiers); j++)
                 XGrabKey(d, code, keys[i].mod | modifiers[j], root,
                         True, GrabModeAsync, GrabModeAsync);
-
+    #if MOUSE_MAPPING_PATCH
+    for (i = 0; i < sizeof(buttons)/sizeof(*buttons); i++)
+        for (size_t j = 0; j < sizeof(modifiers)/sizeof(*modifiers); j++)
+            XGrabButton(d, buttons[i].button, buttons[i].mod |modifiers[j], root, True,
+    #else 
     for (i = 1; i < 4; i += 2)
         for (j = 0; j < sizeof(modifiers)/sizeof(*modifiers); j++)
             XGrabButton(d, i, MOD | modifiers[j], root, True,
+    #endif
                 ButtonPressMask|ButtonReleaseMask|PointerMotionMask,
                 GrabModeAsync, GrabModeAsync, 0, 0);
 
