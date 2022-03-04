@@ -55,6 +55,9 @@ static struct key keys[] = {
     #if RESTARTING_PATCH
     {MOD | ShiftMask, XK_r, quit, {.i = 0}},
     #endif
+
+    {Mod1Mask,           XK_Tab, win_next,   {0}},
+    {Mod1Mask|ShiftMask, XK_Tab, win_prev,   {0}},
     
     {MOD, XK_p, run, {.com = menu}},
     {MOD, XK_w, run, {.com = colors}},
@@ -118,8 +121,8 @@ static struct key keys[] = {
     {MOD | ShiftMask, XK_6, win_to_ws, {.i = 6}},
 };
 #endif
-#if NEXT_WS_PATCH || EXISTING_CLIENTS_PATCH
-const int WORKSPACE_COUNT = 6;
+#if NEXT_WS_PATCH || EXISTING_CLIENTS_PATCH || BARFS_PATCH
+const int WS_COUNT = 6;
 #endif
 #if EXISTING_CLIENTS_PATCH
 const bool CYCLE_WS = true;

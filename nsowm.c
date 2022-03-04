@@ -1,5 +1,11 @@
 // nsowm - An itsy bitsy floating window manager.
 #include "patches.h"
+#if BARFS_PATCH
+#include <stdio.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#endif
 #include <X11/Xlib.h>
 #include <X11/XF86keysym.h>
 #include <X11/keysym.h>
@@ -64,7 +70,7 @@ unsigned long getcolor(const char *col) {
 
 void win_focus(client *c) {
     cur = c;
-    XSetInputFocus(d, cur->w, RevertToParent, CurrentTime);
+    XSetInputFocus(d, cur->w, RevertToParent, CurrentTime); 
 }
 
 void notify_destroy(XEvent *e) {
@@ -417,8 +423,27 @@ void win_next(const Arg arg) {
     #endif
     win_focus(cur->next);
 }
-
 void ws_go(const Arg arg) {
+
+    #if BARFS_PATCH
+    #define barfs_dir  "/tmp/barfs"
+    struct stat st = {0};
+    if (stat(barfs_dir, &st) == -1) {
+        mkdir(barfs_dir, 0700);
+    }
+    
+    FILE *fp = fopen("/tmp/barfs/ws", "w");
+    if (!fp) return;
+    fprintf(fp, "%d", arg.i);
+    fclose(fp);
+
+    FILE *fp2 = fopen("/tmp/barfs/wscount", "w");
+    if (!fp2) return; 
+    fprintf(fp2, "%d", WS_COUNT);
+    fclose(fp2);
+
+    #endif
+
     #if LAST_WS_PATCH
     last_ws = ws;
     #endif
@@ -471,7 +496,7 @@ void win_init(void) {
         win_add(child[i]);
     }
     if (CYCLE_WS) {
-        for (i = 1; i < WORKSPACE_COUNT + 1; i++) {
+        for (i = 1; i < WS_COUNT + 1; i++) {
             int current = ws;
             ws_go((Arg){.i = i});
             ws_go((Arg){.i = current});
@@ -482,7 +507,7 @@ void win_init(void) {
 
 #if NEXT_WS_PATCH
 void ws_go_add(const Arg arg) {
-    if (arg.i + ws > WORKSPACE_COUNT || arg.i + ws < 1) return;
+    if (arg.i + ws > WS_COUNT || arg.i + ws < 1) return;
     ws_go((Arg){.i = arg.i + ws});
 }
 #endif
