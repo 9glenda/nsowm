@@ -51,8 +51,11 @@ static struct key keys[] = {
     {MOD | ShiftMask, XK_c, win_kill, {0}},
     {MOD, XK_c, win_center, {0}},
     {MOD, XK_f, win_fs, {0}},
-    {MOD | ShiftMask, XK_q, quit, {0}},
-
+    {MOD | ShiftMask, XK_q, quit, {.i = 1}},
+    #if RESTARTING_PATCH
+    {MOD | ShiftMask, XK_r, quit, {.i = 0}},
+    #endif
+    
     {MOD, XK_p, run, {.com = menu}},
     {MOD, XK_w, run, {.com = colors}},
     {MOD, XK_d, run, {.com = scrot}},

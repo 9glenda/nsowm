@@ -552,8 +552,8 @@ void mapping_notify(XEvent *e) {
     }
 }
 
-void quit(int code) {
-	exit(code);
+void quit(const Arg arg) {
+	exit(arg.i);
 }
 
 void run(const Arg arg) {

@@ -90,3 +90,13 @@
 // https://github.com/dylanaraps/sowm/pull/64
 // Manages clients which exist prior to sowm.
 #define EXISTING_CLIENTS_PATCH 1
+
+// no diff
+// no url
+// restarting nsowm
+// .xinitrc
+// true
+// while [ $? -eq 0 ]; do
+// exec nsowm
+// done
+#define RESTARTING_PATCH 1
