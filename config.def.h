@@ -70,7 +70,8 @@ static struct key keys[] = {
     {MOD, XK_b, last_ws_go, {0}},
     #endif
     #if NEXT_WS_PATCH
-    {MOD, XK_n, ws_go_add, {.i = 1}},
+    {MOD, XK_z, ws_go_add, {.i = 1}},
+    {MOD | ShiftMask, XK_z, ws_go_add, {.i = -1}},
     #endif
 #if RESIZE_PATCH
     {MOD, XK_k, win_move, {.com = (const char *[]){"move", "n"}, .i = 10}},

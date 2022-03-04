@@ -482,7 +482,7 @@ void win_init(void) {
 
 #if NEXT_WS_PATCH
 void ws_go_add(const Arg arg) {
-    if (arg.i + ws > WORKSPACE_COUNT) return;
+    if (arg.i + ws > WORKSPACE_COUNT || arg.i + ws < 1) return;
     ws_go((Arg){.i = arg.i + ws});
 }
 #endif
