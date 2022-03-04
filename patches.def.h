@@ -1,7 +1,7 @@
 // diff/rounded_corners.diff
 // https://patch-diff.githubusercontent.com/raw/dylanaraps/sowm/pull/58.patch
 // rounded corners for windows
-#define ROUNDED_CORNERS_PATCH 0
+#define ROUNDED_CORNERS_PATCH 1
 
 // diff/autostart.diff
 // https://patch-diff.githubusercontent.com/raw/dylanaraps/sowm/pull/106.patch
@@ -23,7 +23,7 @@
 // diff/title.diff
 // https://github.com/dylanaraps/sowm/pull/57
 // white title bar (pointless)
-#define TITLEBAR_PATCH 1
+#define TITLEBAR_PATCH 0
 
 // diff/normalkill.diff
 // https://raw.githubusercontent.com/dylanaraps/sowm-patches/master/patches/sowm-normal-kill.patch
@@ -68,7 +68,7 @@
 
 // Mappings for other mouse buttons (Button4, etc) are also possible and can use
 // any existing function, e.g. run to run a command. BROKEN no mouse bindings at
-// all		FIXME
+// broken		FIXME
 #define MOUSE_MAPPING_PATCH 0
 /// diff/2bswm-style.diff
 // https://github.com/dylanaraps/sowm-patches/blob/master/patches/sowm-2bswm-style.patch%7E087e2767361e60a143b3f00cbe7a7486b032af4a
