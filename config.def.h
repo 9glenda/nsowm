@@ -9,7 +9,7 @@
 #define ROUND_CORNERS 3
 #endif // ROUNDED_CORNERS_PATCH
 
-#if TITLE_PATCH
+#if TITLEBAR_PATCH
 #define TH 90
 #define TC 255 + (255 << 8) + (255 << 16)
 #endif
@@ -63,7 +63,12 @@ static struct key keys[] = {
     {0, XF86XK_AudioMute, run, {.com = volmute}},
     {0, XF86XK_MonBrightnessUp, run, {.com = briup}},
     {0, XF86XK_MonBrightnessDown, run, {.com = bridown}},
-
+    #if LAST_WS_PATCH
+    {MOD, XK_b, last_ws_go, {0}},
+    #endif
+    #if NEXT_WS_PATCH
+    {MOD, XK_n, ws_go_add, {.i = 1}},
+    #endif
 #if RESIZE_PATCH
     {MOD, XK_k, win_move, {.com = (const char *[]){"move", "n"}, .i = 10}},
     {MOD, XK_j, win_move, {.com = (const char *[]){"move", "s"}, .i = 10}},
@@ -108,5 +113,7 @@ static struct key keys[] = {
     {MOD, XK_6, ws_go, {.i = 6}},
     {MOD | ShiftMask, XK_6, win_to_ws, {.i = 6}},
 };
-
+#endif
+#if NEXT_WS_PATCH
+const int WORKSPACE_COUNT = 6;
 #endif

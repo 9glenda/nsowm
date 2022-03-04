@@ -10,7 +10,7 @@
 #if ROUNDED_CORNERS_PATCH // ROUNDED_CORNERS_PATCH
 #include <X11/extensions/shape.h>
 #endif // ROUNDED_CORNERS_PATCH
-#if TITLE_PATCH
+#if TITLEBAR_PATCH
 #include <X11/Xutil.h>
 #include <string.h>
 #endif
@@ -26,6 +26,9 @@ static client       *list = {0}, *ws_list[10] = {0}, *cur;
 #endif
 static int          ws = 1, sw, sh, wx, wy, numlock = 0;
 static unsigned int ww, wh;
+#if LAST_WS_PATCH
+static int          last_ws = 1;
+#endif
 
 #if BORDER_PATCH
 static int s;
@@ -70,7 +73,7 @@ void notify_destroy(XEvent *e) {
     if (list) win_focus(list->prev);
 }
 
-#if TITLE_PATCH
+#if TITLEBAR_PATCH
 void title_add(client *c) {
     if (c->t) return;
 
@@ -80,7 +83,11 @@ void title_add(client *c) {
     if (!strcmp(cl.res_name, "no-title")) return;
 
     win_size(c->w, &wx, &wy, &ww, &wh);
+    #if BORDER_PATCH
+    c->t = XCreateSimpleWindow(d, root, wx, wy - TH, ww + 2*BORDER_WIDTH, TH, 0, TC, TC);
+    #else
     c->t = XCreateSimpleWindow(d, root, wx, wy - TH, ww, TH, 0, TC, TC);
+    #endif
     XMapWindow(d, c->t);
 }
 
@@ -100,7 +107,7 @@ void notify_enter(XEvent *e) {
     #if BORDER_PATCH
     while(XCheckTypedWindowEvent(d, mouse.subwindow, MotionNotify, e));
     #endif
-    #if TITLE_PATCH
+    #if TITLEBAR_PATCH
     if (mouse.subwindow == cur->t) {
 	    mouse.subwindow = cur->w;
 	    win_size(cur->w, &wx, &wy, &ww, &wh);
@@ -133,12 +140,16 @@ void notify_motion(XEvent *e) {
         MAX(1, ww + (mouse.button == 3 ? xd : 0)),
         MAX(1, wh + (mouse.button == 3 ? yd : 0)));
 	#endif
-    	#if TITLE_PATCH
+    	#if TITLEBAR_PATCH
         if (cur->t) XMoveResizeWindow(d, cur->t,
 
 	   wx + (mouse.button == 1 ? xd : 0),
            wy + (mouse.button == 1 ? yd : 0) - TH,
-           MAX(1, ww + (mouse.button == 3 ? xd : 0)), TH);
+           #if BORDER_PATCH
+           MAX(1, ww + 2*BORDER_WIDTH + (mouse.button == 3 ? xd : 0)), TH);
+           #else
+           MAX(1, ww  + (mouse.button == 3 ? xd : 0)), TH);
+           #endif
         #endif
         #if ROUNDED_CORNERS_PATCH
     	if (mouse.button == 3) {
@@ -237,7 +248,7 @@ void win_del(Window w) {
     if (x->next)      x->next->prev = x->prev;
     if (x->prev)      x->prev->next = x->next;
     
-    #if TITLE_PATCH
+    #if TITLEBAR_PATCH
     title_del(x);
     #endif
     free(x);
@@ -267,7 +278,7 @@ void win_center(const Arg arg) {
 
     win_size(cur->w, &(int){0}, &(int){0}, &ww, &wh);
     XMoveWindow(d, cur->w, (sw - ww) / 2, (sh - wh) / 2);
-    #if TITLE_PATCH
+    #if TITLEBAR_PATCH
     if (cur->t) XMoveWindow(d, cur->t, (sw - ww) / 2, (sh - wh - TH * 2) / 2);
     #endif
 }
@@ -278,13 +289,13 @@ void win_fs(const Arg arg) {
     if ((cur->f = cur->f ? 0 : 1)) {
         win_size(cur->w, &cur->wx, &cur->wy, &cur->ww, &cur->wh);
         XMoveResizeWindow(d, cur->w, 0, 0, sw, sh);
-        #if TITLE_PATCH
+        #if TITLEBAR_PATCH
 	XRaiseWindow(d, cur->w);
 	title_del(cur);
         #endif
     } else {
         XMoveResizeWindow(d, cur->w, cur->wx, cur->wy, cur->ww, cur->wh);
-	#if TITLE_PATCH
+	#if TITLEBAR_PATCH
 	title_add(cur);
 	#endif
     }
@@ -372,7 +383,7 @@ void win_to_ws(const Arg arg) {
     ws_sel(arg.i);
     win_add(cur->w);
     ws_save(arg.i);
-    #if TITLE_PATCH
+    #if TITLEBAR_PATCH
     title_del(cur);
     #endif
 
@@ -386,7 +397,7 @@ void win_to_ws(const Arg arg) {
 
 void win_prev(const Arg arg) {
     if (!cur) return;
-    #if TITLE_PATCH
+    #if TITLEBAR_PATCH
     if (cur->prev->t)
 	    XRaiseWindow(d, cur->prev->t);
     #endif
@@ -399,7 +410,7 @@ void win_next(const Arg arg) {
 
     XRaiseWindow(d, cur->next->w);
 
-    #if TITLE_PATCH
+    #if TITLEBAR_PATCH
     if (cur->next->w); {
 	    XRaiseWindow(d, cur->next->t);
     }
@@ -408,6 +419,10 @@ void win_next(const Arg arg) {
 }
 
 void ws_go(const Arg arg) {
+    #if LAST_WS_PATCH
+    last_ws = ws;
+    #endif
+
     int tmp = ws;
 
     if (arg.i == ws) return;
@@ -415,10 +430,10 @@ void ws_go(const Arg arg) {
     ws_save(ws);
     ws_sel(arg.i);
 
-    #if !TITLE_PATCH
+    #if !TITLEBAR_PATCH
     for win XMapWindow(d, c->w);
     #endif
-    #if TITLE_PATCH
+    #if TITLEBAR_PATCH
     for win{
     	XMapWindow(d,c->w);
 	title_add(c);
@@ -427,10 +442,10 @@ void ws_go(const Arg arg) {
     ws_sel(tmp);
 
 
-    #if !TITLE_PATCH
+    #if !TITLEBAR_PATCH
     for win XUnmapWindow(d, c->w);
     #endif
-    #if TITLE_PATCH
+    #if TITLEBAR_PATCH
     for win{
     	XUnmapWindow(d, c->w);
 	title_del(c);
@@ -441,6 +456,29 @@ void ws_go(const Arg arg) {
 
     if (list) win_focus(list); else cur = 0;
 }
+
+#if EXISTING_CLIENTS_PATCH
+void win_init(void) {
+    Window *child;
+    unsigned int i, n_child;
+
+    XQueryTree(d, RootWindow(d, DefaultScreen(d)), 
+               &(Window){0}, &(Window){0}, &child, &n_child);
+
+    for (i = 0;  i < n_child; i++) {
+        XSelectInput(d, child[i], StructureNotifyMask|EnterWindowMask);
+        XMapWindow(d, child[i]);
+        win_add(child[i]);
+    }
+}
+#endif
+
+#if NEXT_WS_PATCH
+void ws_go_add(const Arg arg) {
+    if (arg.i + ws > WORKSPACE_COUNT) return;
+    ws_go((Arg){.i = arg.i + ws});
+}
+#endif
 
 void configure_request(XEvent *e) {
     XConfigureRequestEvent *ev = &e->xconfigurerequest;
@@ -493,7 +531,7 @@ void map_request(XEvent *e) {
     #endif
     XMapWindow(d, w);
     win_focus(list->prev);
-    #if TITLE_PATCH
+    #if TITLEBAR_PATCH
     title_add(cur);
     #endif
 }
@@ -551,7 +589,11 @@ void input_grab(Window root) {
 
     XFreeModifiermap(modmap);
 }
-
+#if LAST_WS_PATCH
+void last_ws_go(const Arg arg) {
+    ws_go((Arg){.i = last_ws});
+}
+#endif
 int main(void) {
     XEvent ev;
 
@@ -576,6 +618,9 @@ int main(void) {
     XSelectInput(d,  root, SubstructureRedirectMask);
     XDefineCursor(d, root, XCreateFontCursor(d, 68));
     input_grab(root);
+    #if EXISTING_CLIENTS_PATCH
+    win_init();
+    #endif
     #if AUTOSTART_PATCH
     auto_start();
     #endif
