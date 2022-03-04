@@ -66,4 +66,4 @@
 /// diff/2bswm-style.diff
 // https://github.com/dylanaraps/sowm-patches/blob/master/patches/sowm-2bswm-style.patch%7E087e2767361e60a143b3f00cbe7a7486b032af4a
 // I don't know
-#define 2BSWM_STYLE_PATCH 1
+//#define 2BSWM_STYLE_PATCH 1

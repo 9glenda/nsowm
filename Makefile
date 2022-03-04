@@ -4,10 +4,12 @@ PREFIX ?= /usr
 BINDIR ?= $(PREFIX)/bin
 CC     ?= gcc
 
-all: clean nsowm
+all: nsowm
 
 config.h:
 	cp config.def.h config.h
+
+patches.h:
 	cp patches.def.h patches.h
 
 nsowm: nsowm.c nsowm.h config.h patches.h Makefile
@@ -22,4 +24,7 @@ uninstall:
 clean:	
 	rm -f nsowm *.o patches.h config.h
 
-.PHONY: all install uninstall clean
+desktop:
+	cp -f nsowm.desktop /usr/share/xsessions/nsowm.desktop
+
+.PHONY: all install uninstall clean desktop

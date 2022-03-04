@@ -1,0 +1,5 @@
+[Desktop Entry]
+Name=nsowm
+Comment=This session runs nsowm as desktop manager
+Exec=nsowm
+Type=Application

@@ -1,3 +1,4 @@
-sowm
-sowm.o
+nsowm
+nsowm.o
 config.h
+patches.h
