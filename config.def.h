@@ -8,11 +8,6 @@
 #if ROUNDED_CORNERS_PATCH // ROUNDED_CORNERS_PATCH
 #define ROUND_CORNERS 3
 #endif // ROUNDED_CORNERS_PATCH
-// window borders patch
-#define BORDER_SELECT   "#880000"
-#define BORDER_NORMAL   "#333333"
-#define BORDER_NONE     "#000000"
-#define BORDER_WIDTH    10 //shadow
 
 #if TITLE_PATCH
 #define TH  90
@@ -20,7 +15,7 @@
 #endif
 
 #if BORDER_PATCH
-#define BORDER_COLOR "#00FF00"
+#define BORDER_COLOR "#9ff3ec"
 #define BORDER_WIDTH 10
 #endif
 
@@ -33,13 +28,31 @@ const char* voldown[] = {"amixer", "sset", "Master", "5%-",         0};
 const char* volup[]   = {"amixer", "sset", "Master", "5%+",         0};
 const char* volmute[] = {"amixer", "sset", "Master", "toggle",      0};
 const char* colors[]  = {"bud", "/home/goldie/Pictures/Wallpapers", 0};
+#if MOUSE_MAPPING_PATCH
+static struct button buttons[] = {
+    {MOD,           Button1, win_raise, {0}},
+    {MOD,           Button1, win_move, {0}},
+
+    {MOD,           Button3, win_raise, {0}},
+    {MOD,           Button3, win_resize, {0}},
+
+    {MOD|ShiftMask, Button1, win_raise, {0}},
+    {MOD|ShiftMask, Button1, win_center, {0}},
+
+    {MOD|ShiftMask, Button3, win_raise, {0}},
+    {MOD|ShiftMask, Button3, win_fs, {0}},
+
+    {MOD,           Button2, win_lower, {0}},
+    {MOD|ShiftMask, Button2, win_kill, {0}},
+};
+#endif
 
 static struct key keys[] = {
     {MOD|ShiftMask,  XK_c,   win_kill,   {0}},
     {MOD,            XK_c,   win_center, {0}},
     {MOD,            XK_f,   win_fs,     {0}},
     {MOD|ShiftMask,  XK_q,   quit,       {0}},
-
+    #if 2BSWM_STYLE_PATCH
     {Mod1Mask,           XK_Tab, win_next,   {0}},
     {Mod1Mask|ShiftMask, XK_Tab, win_prev,   {0}},
 
