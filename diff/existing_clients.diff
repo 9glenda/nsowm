@@ -1,0 +1,55 @@
+From 6b8a169b9d28261ed962f0dcfe2aab0ec283ca44 Mon Sep 17 00:00:00 2001
+From: Dylan Araps <dylan.araps@gmail.com>
+Date: Sun, 8 Mar 2020 12:39:45 +0200
+Subject: [PATCH] sowm: Add existing clients
+
+---
+ sowm.c | 15 +++++++++++++++
+ sowm.h |  1 +
+ 2 files changed, 16 insertions(+)
+
+diff --git a/sowm.c b/sowm.c
+index 509e28f..ad6d751 100644
+--- a/sowm.c
++++ b/sowm.c
+@@ -255,6 +255,20 @@ void input_grab(Window root) {
+     XFreeModifiermap(modmap);
+ }
+ 
++void win_init(void) {
++    Window *child;
++    unsigned int i, n_child;
++
++    XQueryTree(d, RootWindow(d, DefaultScreen(d)), 
++               &(Window){0}, &(Window){0}, &child, &n_child);
++
++    for (i = 0;  i < n_child; i++) {
++        XSelectInput(d, child[i], StructureNotifyMask|EnterWindowMask);
++        XMapWindow(d, child[i]);
++        win_add(child[i]);
++    }
++}
++
+ int main(void) {
+     XEvent ev;
+ 
+@@ -271,6 +285,7 @@ int main(void) {
+     XSelectInput(d,  root, SubstructureRedirectMask);
+     XDefineCursor(d, root, XCreateFontCursor(d, 68));
+     input_grab(root);
++    win_init();
+ 
+     while (1 && !XNextEvent(d, &ev))
+         if (events[ev.type]) events[ev.type](&ev);
+diff --git a/sowm.h b/sowm.h
+index 455ed93..74afa91 100644
+--- a/sowm.h
++++ b/sowm.h
+@@ -51,6 +51,7 @@ void win_focus(client *c);
+ void win_kill(const Arg arg);
+ void win_prev(const Arg arg);
+ void win_next(const Arg arg);
++void win_init(void);
+ void win_to_ws(const Arg arg);
+ void ws_go(const Arg arg);
+ 

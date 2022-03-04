@@ -42,7 +42,7 @@ typedef struct client {
     struct client *next, *prev;
     int f, wx, wy;
     unsigned int ww, wh;
-#if TITLE_PATCH
+#if TITLEBAR_PATCH
     Window w,t;
     #else
     Window w;
@@ -81,6 +81,12 @@ void win_resize(const Arg arg);
 #if WINDOWS_PATCH
 bool exists_win(Window w);
 #endif
+#if LAST_WS_PATCH
+void last_ws_go(const Arg arg);
+#endif
+#if NEXT_WS_PATCH
+void ws_go_add(const Arg arg);
+#endif
 void quit(int code);
 #if ROUNDED_CORNERS_PATCH
 void win_round_corners(Window w, int rad);
@@ -94,9 +100,13 @@ void win_move(const Arg arg);
 #if SPLIT_PATCH
 void split_win(const Arg arg);
 #endif
-#if TITLE_PATCH
+#if TITLEBAR_PATCH
 void title_add(client *c);
 void title_del(client *c);
+#endif
+
+#if EXISTING_CLIENTS_PATCH
+void win_init(void);
 #endif
 
 static int xerror() { return 0; }

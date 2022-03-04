@@ -23,18 +23,20 @@
 // diff/title.diff
 // https://github.com/dylanaraps/sowm/pull/57
 // white title bar (pointless)
-#define TITLE_PATCH 0
+#define TITLEBAR_PATCH 1
 
 // diff/normalkill.diff
 // https://raw.githubusercontent.com/dylanaraps/sowm-patches/master/patches/sowm-normal-kill.patch
-// In some cases all windows of a programm get cilled if you try to kill one without this patch
+// In some cases all windows of a programm get cilled if you try to kill one
+// without this patch
 #define NORMALKILL_PATCH 1
 
 // diff/fixedborders.diff
 // https://patch-diff.githubusercontent.com/raw/dylanaraps/sowm/pull/91.patch
 // add a boreder around windows
 // BUGS:
-// doesn't work with ROUNDED_CORNERS_PATCH (just won't be visable but sometimes it is)
+// doesn't work with ROUNDED_CORNERS_PATCH (just won't be visable but sometimes
+// it is)
 #define BORDER_PATCH 1
 
 // diff/windows.diff
@@ -51,19 +53,40 @@
 // diff/mouse.diff
 // https://patch-diff.githubusercontent.com/raw/dylanaraps/sowm/pull/84.patch
 // Allow custom button mapping
-// This patch introduces custom button (pointer / mouse) mapping functionality. config.def.h has the default mappings for MOD+Button1 (new function: win_move) and MOD+Button3 (new function: win_resize) and four new mappings:
+// This patch introduces custom button (pointer / mouse) mapping functionality.
+// config.def.h has the default mappings for MOD+Button1 (new function:
+// win_move) and MOD+Button3 (new function: win_resize) and four new mappings:
 
 // MOD+Button2 lowers the window (new function: win_lower)
 // MOD+Shift+Button1 centers the window (win_center)
 // MOD+Shift+Button2 kills the window (win_kill)
 // MOD+Shift+Button3 makes the window full-screen (win_fs)
 
-// Note that raising the window is a separate function (new function: win_raise) which doesn't necessarily need to be attached to an operation. For example, you could have a mapping to move a window without raising it.
+// Note that raising the window is a separate function (new function: win_raise)
+// which doesn't necessarily need to be attached to an operation. For example,
+// you could have a mapping to move a window without raising it.
 
-// Mappings for other mouse buttons (Button4, etc) are also possible and can use any existing function, e.g. run to run a command.
-// BROKEN no mouse bindings at all		FIXME
+// Mappings for other mouse buttons (Button4, etc) are also possible and can use
+// any existing function, e.g. run to run a command. BROKEN no mouse bindings at
+// all		FIXME
 #define MOUSE_MAPPING_PATCH 0
 /// diff/2bswm-style.diff
 // https://github.com/dylanaraps/sowm-patches/blob/master/patches/sowm-2bswm-style.patch%7E087e2767361e60a143b3f00cbe7a7486b032af4a
 // I don't know
 //#define 2BSWM_STYLE_PATCH 1
+
+// no diff
+// no url
+// switch to last workspace
+#define LAST_WS_PATCH 1
+
+// no diff
+// no url
+// switch to next or previous workspace
+#define NEXT_WS_PATCH 1
+
+// diff/existing_clients.diff
+// https://patch-diff.githubusercontent.com/raw/dylanaraps/sowm/pull/64.patch
+// https://github.com/dylanaraps/sowm/pull/64
+// Manages clients which exist prior to sowm.
+#define EXISTING_CLIENTS_PATCH 1
