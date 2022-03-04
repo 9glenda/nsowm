@@ -114,6 +114,9 @@ static struct key keys[] = {
     {MOD | ShiftMask, XK_6, win_to_ws, {.i = 6}},
 };
 #endif
-#if NEXT_WS_PATCH
+#if NEXT_WS_PATCH || EXISTING_CLIENTS_PATCH
 const int WORKSPACE_COUNT = 6;
+#endif
+#if EXISTING_CLIENTS_PATCH
+const bool CYCLE_WS = true;
 #endif
