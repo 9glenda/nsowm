@@ -11,6 +11,7 @@ The next genergetion of sowm
 - Focus with cursor.
 - Rounded corners (patch)
 - Titlebars (patch)
+- lemonbar support (barfs)
 
 
 <a href="https://github.com/luis-07/nsowm/screenshots/anime-1.png"><img src="screenshots/anime-1.png" width="43%" align="right"></a>
