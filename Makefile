@@ -27,4 +27,7 @@ clean:
 desktop:
 	cp -f nsowm.desktop /usr/share/xsessions/nsowm.desktop
 
+lemonbar:
+	./make-config.sh lemonbar clean install
+
 .PHONY: all install uninstall clean desktop
