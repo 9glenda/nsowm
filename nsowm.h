@@ -10,7 +10,7 @@
 #define MAX(a, b)  ((a) > (b) ? (a) : (b))
 
 #define win_size(W, gx, gy, gw, gh) \
-    XGetGeometry(d, W, &(Window){0}, gx, gy, gw, gh, \
+    XGetGeometry(dpy, W, &(Window){0}, gx, gy, gw, gh, \
                  &(unsigned int){0}, &(unsigned int){0})
 
 // Taken from DWM. Many thanks. https://git.suckless.org/dwm
@@ -29,14 +29,7 @@ struct key {
     void (*function)(const Arg arg);
     const Arg arg;
 };
-#if MOUSE_MAPPING_PATCH
-struct button {
-   unsigned int mod;
-   unsigned int button;
-   void (*function)(const Arg arg);
-   const Arg arg;
-};
-#endif
+
 
 typedef struct client {
     struct client *next, *prev;
@@ -72,12 +65,6 @@ void win_prev(const Arg arg);
 void win_next(const Arg arg);
 void win_to_ws(const Arg arg);
 void ws_go(const Arg arg);
-#if MOUSE_MAPPING_PATCH
-#endif
-void win_lower(const Arg arg);
-void win_raise(const Arg arg);
-void win_move(const Arg arg);
-void win_resize(const Arg arg);
 #if WINDOWS_PATCH
 bool exists_win(Window w);
 #endif
