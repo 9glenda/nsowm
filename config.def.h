@@ -19,6 +19,9 @@
 #define BORDER_WIDTH 10
 #endif
 
+#if FIXBAR_PATCH
+#define BAR_HEIGHT 15
+#endif
 const char *menu[] = {"dmenu_run", 0};
 const char *term[] = {"alacritty", 0};
 const char *scrot[] = {"scrot", 0};
