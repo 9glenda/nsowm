@@ -37,7 +37,7 @@ static int          last_ws = 1;
 #endif
 
 #if BORDER_PATCH
-static int s;
+static int screen;
 #endif
 static Display      *d;
 static XButtonEvent mouse;
@@ -62,7 +62,7 @@ static void (*events[LASTEvent])(XEvent *e) = {
 
 #if BORDER_PATCH
 unsigned long getcolor(const char *col) {
-	Colormap m = DefaultColormap(d, s);
+	Colormap m = DefaultColormap(d, screen);
 	XColor c;
 	return (!XAllocNamedColor(d, m, col, &c, &c))?0:c.pixel;
 }
@@ -361,9 +361,9 @@ void win_move(const Arg arg) {
 
     XMoveResizeWindow(d, cur->w, \
         wx + (r ? 0 : m == 'e' ?  arg.i : m == 'w' ? -arg.i : 0),
-        wy + (r ? 0 : m == 'n' ? -arg.i : m == 's' ?  arg.i : 0),
+        wy + (r ? 0 : m == 'n' ? -arg.i : m == 'screen' ?  arg.i : 0),
         MAX(10, ww + (r ? m == 'e' ?  arg.i : m == 'w' ? -arg.i : 0 : 0)),
-        MAX(10, wh + (r ? m == 'n' ? -arg.i : m == 's' ?  arg.i : 0 : 0)));
+        MAX(10, wh + (r ? m == 'n' ? -arg.i : m == 'screen' ?  arg.i : 0 : 0)));
 }
 #endif
 
@@ -375,9 +375,9 @@ void split_win(const Arg arg) {
 
      XMoveResizeWindow(d, cur->w, \
         (m == 'w' ? wx : m == 'e' ? (wx + ww / 2) : wx),
-        (m == 'n' ? wy : m == 's' ? (wy + wh / 2) : wy),
+        (m == 'n' ? wy : m == 'screen' ? (wy + wh / 2) : wy),
         (m == 'w' ? (ww / 2) : m == 'e' ? (ww / 2) : ww),
-        (m == 'n' ? (wh / 2) : m == 's' ? (wh / 2) : wh));
+        (m == 'n' ? (wh / 2) : m == 'screen' ? (wh / 2) : wh));
 }
 #endif
 
@@ -636,16 +636,16 @@ int main(void) {
 
     
     #if !BORDER_PATCH
-    int s = DefaultScreen(d);
+    int screen = DefaultScreen(d);
     #endif
 
-    root  = RootWindow(d, s);
+    root  = RootWindow(d, screen);
     #if BORDER_PATCH
-    sw    = XDisplayWidth(d, s) - (2*BORDER_WIDTH);
-    sh    = XDisplayHeight(d, s) - (2*BORDER_WIDTH);
+    sw    = XDisplayWidth(d, screen) - (2*BORDER_WIDTH);
+    sh    = XDisplayHeight(d, screen) - (2*BORDER_WIDTH);
     #else
-    sw    = XDisplayWidth(d, s);
-    sh    = XDisplayHeight(d, s);
+    sw    = XDisplayWidth(d, screen);
+    sh    = XDisplayHeight(d, screen);
     #endif
     XSelectInput(d,  root, SubstructureRedirectMask);
     XDefineCursor(d, root, XCreateFontCursor(d, 68));
