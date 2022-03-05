@@ -9,5 +9,5 @@ var() {
 
 while [ 0 -eq 0 ];do
 var
-echo -e "$wslist"
+echo "$wslist" 
 done
