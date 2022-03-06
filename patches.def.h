@@ -94,3 +94,8 @@
 // no url
 // just sets the name of teh windowmanager
 #define ICCCM_PATCH 0
+
+// no diff
+// no url
+// Mod + Shift + f resize windo to fullscreen without making it fullscreen
+#define RESIZEFULLSCREEN_PATCH 1
