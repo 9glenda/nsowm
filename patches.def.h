@@ -12,12 +12,12 @@
 // https://patch-diff.githubusercontent.com/raw/dylanaraps/sowm/pull/59.patch
 // Move window with mod + h,j,k,l
 // Resize window with mod|shift + h,j,k,l
-#define RESIZE_PATCH 1
+#define RESIZE_PATCH 0
 
 // diff/split.diff
 // https://patch-diff.githubusercontent.com/raw/dylanaraps/sowm/pull/76.patch
 // split windows
-#define SPLIT_PATCH 1
+#define SPLIT_PATCH 0
 
 // diff/title.diff
 // https://github.com/dylanaraps/sowm/pull/57
@@ -47,7 +47,7 @@
 // In order to correct the problem, a function exists_win was added to prevent
 // duplicate windows being inserted into other workspaces. A global macro
 // constant NUM_WS was also required to ensure proper bounds in exists_win.
-#define WINDOWS_PATCH 1
+#define WINDOWS_PATCH 0
 
 /// diff/2bswm-style.diff
 // https://github.com/dylanaraps/sowm-patches/blob/master/patches/sowm-2bswm-style.patch%7E087e2767361e60a143b3f00cbe7a7486b032af4a
@@ -57,18 +57,18 @@
 // no diff
 // no url
 // switch to last workspace
-#define LAST_WS_PATCH 1
+#define LAST_WS_PATCH 0
 
 // no diff
 // no url
 // switch to next or previous workspace
-#define NEXT_WS_PATCH 1
+#define NEXT_WS_PATCH 0
 
 // diff/existing_clients.diff
 // https://patch-diff.githubusercontent.com/raw/dylanaraps/sowm/pull/64.patch
 // https://github.com/dylanaraps/sowm/pull/64
 // Manages clients which exist prior to sowm.
-#define EXISTING_CLIENTS_PATCH 1
+#define EXISTING_CLIENTS_PATCH 0
 
 // no diff
 // no url
@@ -78,7 +78,7 @@
 // while [ $? -eq 0 ]; do
 // exec nsowm
 // done
-#define RESTARTING_PATCH 1
+#define RESTARTING_PATCH 0
 
 // no diff
 // no url
@@ -98,4 +98,4 @@
 // no diff
 // no url
 // Mod + Shift + f resize windo to fullscreen without making it fullscreen
-#define RESIZEFULLSCREEN_PATCH 1
+#define RESIZEFULLSCREEN_PATCH 0

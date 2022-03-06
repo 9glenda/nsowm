@@ -91,6 +91,9 @@ void split_win(const Arg arg);
 void title_add(client *c);
 void title_del(client *c);
 #endif
+#if RESIZEFULLSCREEN_PATCH
+void win_resize_fullscreen(const Arg arg);
+#endif
 
 #if EXISTING_CLIENTS_PATCH
 void win_init(void);

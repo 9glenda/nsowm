@@ -281,6 +281,28 @@ void win_fs(const Arg arg) {
     #endif
 }
 
+#if RESIZEFULLSCREEN_PATCH
+void win_resize_fullscreen(const Arg arg) {
+    if (!cur) return;
+
+    //if ((cur->f = cur->f ? 0 : 1)) {
+        win_size(cur->w, &cur->wx, &cur->wy, &cur->ww, &cur->wh);
+        #if FIXBAR_PATCH
+        XMoveResizeWindow(dpy, cur->w, 0, 0 + BAR_HEIGHT, sw, sh - BAR_HEIGHT);
+        #else
+        XMoveResizeWindow(dpy, cur->w, 0, 0, sw, sh);
+        #endif
+    //} else {
+    //    ;
+    //}
+}
+
+void wrf(const Arg arg) {
+    win_resize_fullscreen(arg);
+    win_resize_fullscreen(arg);
+}
+#endif
+
 #if AUTOSTART_PATCH
 void auto_start(void) {
 	// add autostart programms here
