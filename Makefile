@@ -30,4 +30,6 @@ desktop:
 lemonbar:
 	./make-config.sh lemonbar clean install
 
+man:
+	cp nsowm.1 /usr/share/man/man1/nsowm.1 -f
 .PHONY: all install uninstall clean desktop
