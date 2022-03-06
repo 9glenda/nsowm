@@ -59,6 +59,9 @@ static struct key keys[] = {
     {MOD | ShiftMask, XK_r, quit, {.i = 0}},
     #endif
 
+    #if RESIZEFULLSCREEN_PATCH
+    {MOD|ShiftMask, XK_f, win_resize_fullscreen, {0}},
+    #endif
     {Mod1Mask,           XK_Tab, win_next,   {0}},
     {Mod1Mask|ShiftMask, XK_Tab, win_prev,   {0}},
     
