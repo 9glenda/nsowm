@@ -88,7 +88,7 @@
 // no diff
 // no url
 // Better bar support
-#define FIXBAR_PATCH 0
+#define FIXBAR_PATCH 1
 
 // no diff
 // no url
@@ -98,4 +98,4 @@
 // no diff
 // no url
 // Mod + Shift + f resize windo to fullscreen without making it fullscreen
-#define RESIZEFULLSCREEN_PATCH 0
+#define RESIZEFULLSCREEN_PATCH 1
