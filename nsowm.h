@@ -1,45 +1,46 @@
-#include <X11/Xlib.h>
 #include "patches.h"
+#include <X11/Xlib.h>
 
 #if WINDOWS_PATCH
 #define NUM_WS 10
 #endif
-#define win        (client *t=0, *c=list; c && t!=list->prev; t=c, c=c->next)
+#define win (client *t = 0, *c = list; c && t != list->prev; t = c, c = c->next)
 #define ws_save(W) ws_list[W] = list
-#define ws_sel(W)  list = ws_list[ws = W]
-#define MAX(a, b)  ((a) > (b) ? (a) : (b))
+#define ws_sel(W) list = ws_list[ws = W]
+#define MAX(a, b) ((a) > (b) ? (a) : (b))
 
-#define win_size(W, gx, gy, gw, gh) \
-    XGetGeometry(dpy, W, &(Window){0}, gx, gy, gw, gh, \
-                 &(unsigned int){0}, &(unsigned int){0})
+#define win_size(W, gx, gy, gw, gh)                                            \
+  XGetGeometry(dpy, W, &(Window){0}, gx, gy, gw, gh, &(unsigned int){0},       \
+               &(unsigned int){0})
 
 // Taken from DWM. Many thanks. https://git.suckless.org/dwm
-#define mod_clean(mask) (mask & ~(numlock|LockMask) & \
-        (ShiftMask|ControlMask|Mod1Mask|Mod2Mask|Mod3Mask|Mod4Mask|Mod5Mask))
+#define mod_clean(mask)                                                        \
+  (mask & ~(numlock | LockMask) &                                              \
+   (ShiftMask | ControlMask | Mod1Mask | Mod2Mask | Mod3Mask | Mod4Mask |      \
+    Mod5Mask))
 
 typedef struct {
-    const char** com;
-    const int i;
-    const Window w;
+  const char **com;
+  const int i;
+  const Window w;
 } Arg;
 
 struct key {
-    unsigned int mod;
-    KeySym keysym;
-    void (*function)(const Arg arg);
-    const Arg arg;
+  unsigned int mod;
+  KeySym keysym;
+  void (*function)(const Arg arg);
+  const Arg arg;
 };
 
-
 typedef struct client {
-    struct client *next, *prev;
-    int f, wx, wy;
-    unsigned int ww, wh;
+  struct client *next, *prev;
+  int f, wx, wy;
+  unsigned int ww, wh;
 #if TITLEBAR_PATCH
-    Window w,t;
-    #else
-    Window w;
-    #endif
+  Window w, t;
+#else
+  Window w;
+#endif
 } client;
 #if BORDER_PATCH
 unsigned long getcolor(const char *col);
@@ -94,7 +95,11 @@ void title_del(client *c);
 #if RESIZEFULLSCREEN_PATCH
 void win_resize_fullscreen(const Arg arg);
 #endif
-
+#if BARFS_PATCH
+void creat_dir();
+void fs_true();
+void fs_false();
+#endif
 #if EXISTING_CLIENTS_PATCH
 void win_init(void);
 #endif
