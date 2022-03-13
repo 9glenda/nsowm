@@ -32,4 +32,16 @@ lemonbar:
 
 man:
 	cp nsowm.1 /usr/share/man/man1/nsowm.1 -f
+
+cargo-dep:
+	cargo install alacritty
+
+apt-dep:
+	apt install libx11-dev libxft-dev libxext-dev suckless-tools rustc
+
+
+
+debian: apt-dep cargo-dep
+
+
 .PHONY: all install uninstall clean desktop
