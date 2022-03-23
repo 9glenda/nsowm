@@ -2,7 +2,7 @@
 
 <a href="https://github/com/luis-07/nsowm/screenshots/forrest-1.png"><img src="screenshots/forrest-1.png" width="43%" align="right"></a>
 
-The next genergetion of sowm
+The next genergation of sowm
 
 - Floating only.
 - Fullscreen toggle.
