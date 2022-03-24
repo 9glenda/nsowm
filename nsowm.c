@@ -1,12 +1,12 @@
 // nsowm - An itsy bitsy floating window manager.
 #include "patches.h"
-#if BARFS_PATCH
+#if BARFS_MODULE
 #include <stdio.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
 #endif
-#if ICCCM_PATCH
+#if ICCCM_MODULE | NBAR_MODULE
 #include <X11/Xatom.h>
 #include <stdarg.h>
 #include <stdio.h>
@@ -20,36 +20,42 @@
 #include <signal.h>
 #include <stdlib.h>
 #include <unistd.h>
-#if ROUNDED_CORNERS_PATCH // ROUNDED_CORNERS_PATCH
+#if ROUNDED_CORNERS_MODULE // ROUNDED_CORNERS_MODULE
 #include <X11/extensions/shape.h>
-#endif // ROUNDED_CORNERS_PATCH
-#if TITLEBAR_PATCH
+#endif // ROUNDED_CORNERS_MODULE
+#if TITLEBAR_MODULE
 #include <X11/Xutil.h>
 #include <string.h>
 #endif
-#if WINDOWS_PATCH
+#if WINDOWS_MODULE
 #include <stdbool.h>
 #endif
 #include "nsowm.h"
 
-#if WINDOWS_PATCH
+#if WINDOWS_MODULE
 static client *list = {0}, *ws_list[NUM_WS] = {0}, *cur;
 #else
 static client *list = {0}, *ws_list[10] = {0}, *cur;
 #endif
 static int ws = 1, sw, sh, wx, wy, numlock = 0;
 static unsigned int ww, wh;
-#if LAST_WS_PATCH
+#if LAST_WS_MODULE
 static int last_ws = 1;
 #endif
 
-#if BORDER_PATCH
+#if BORDER_MODULE
 static int screen;
 #endif
 static Display *dpy;
 static XButtonEvent mouse;
-
+#if NBAR_MODULE
+static GC           gc;
+#endif
 static Window root;
+
+#if HOT_CORNERS_MODULE
+Window hot_corner_1;
+#endif
 
 static void (*events[LASTEvent])(XEvent *e) = {
     [ButtonPress] = button_press,
@@ -60,11 +66,17 @@ static void (*events[LASTEvent])(XEvent *e) = {
     [MappingNotify] = mapping_notify,
     [DestroyNotify] = notify_destroy,
     [EnterNotify] = notify_enter,
-    [MotionNotify] = notify_motion};
+    #if NBAR_MODULE
+    [MotionNotify]     = notify_motion,
+    [PropertyNotify]   = notify_property
+    #else
+    [MotionNotify] = notify_motion
+    #endif
+};
 
 #include "config.h"
 
-#if BORDER_PATCH
+#if BORDER_MODULE
 unsigned long getcolor(const char *col) {
   Colormap m = DefaultColormap(dpy, screen);
   XColor c;
@@ -72,7 +84,7 @@ unsigned long getcolor(const char *col) {
 }
 #endif
 
-#if BARFS_PATCH
+#if BARFS_MODULE
 void create_dir() {
 #define barfs_dir "/tmp/barfs"
   struct stat state = {0};
@@ -98,12 +110,21 @@ void fs_false() {
   fprintf(fp, "0");
   fclose(fp);
 }
+void moving_status(char *state) {
+  create_dir();
+  FILE *fp = fopen("/tmp/barfs/moving", "w");
+  if (!fp)
+    return;
+  fprintf(fp, state);
+  fclose(fp);
+}
+
 #endif
 
 void win_focus(client *c) {
   cur = c;
   XSetInputFocus(dpy, cur->w, RevertToParent, CurrentTime);
-#if BARFS_PATCH
+#if BARFS_MODULE
   // checking if current window is fullscreen than writing it to the barfs file
   if (cur->f) {
     fs_true();
@@ -113,14 +134,49 @@ void win_focus(client *c) {
 #endif
 }
 
+#if NBAR_MODULE
+void notify_property(XEvent *e) {
+    draw_bar();
+}
+void draw_bar() {
+    int s;
+    unsigned long black, white;
+    char * name;
+    size_t len;
+
+    s = DefaultScreen(dpy);
+    black = BlackPixel(dpy, s);
+    white = WhitePixel(dpy, s);
+
+    if(XFetchName(dpy, root, &name) == 0) return;
+
+    len = strlen(name);
+
+    XSetBackground(dpy, gc, black);
+
+    XSetForeground(dpy, gc, black);
+    XFillRectangle(dpy, root, gc, 0, sh-12, 2 + len*6, 12);
+
+    XSetForeground(dpy, gc, white);
+    XDrawString(dpy, root, gc, 1, sh-1, name, len);
+
+    XFlush(dpy);
+    XFree(name);
+}
+#endif
 void notify_destroy(XEvent *e) {
   win_del(e->xdestroywindow.window);
 
   if (list)
     win_focus(list->prev);
 }
+#if HOT_CORNERS_MODULE
+void corners() {
+     XMoveWindow(dpy, hot_corner_1, sw - 10, sh + 10);
+}
+#endif
 
-#if TITLEBAR_PATCH
+#if TITLEBAR_MODULE
 void title_add(client *c) {
   if (c->t)
     return;
@@ -132,7 +188,7 @@ void title_add(client *c) {
     return;
 
   win_size(c->w, &wx, &wy, &ww, &wh);
-#if BORDER_PATCH
+#if BORDER_MODULE
   c->t = XCreateSimpleWindow(dpy, root, wx, wy - TH, ww + 2 * BORDER_WIDTH, TH,
                              0, TC, TC);
 #else
@@ -154,11 +210,11 @@ void title_del(client *c) {
 void notify_enter(XEvent *e) {
   while (XCheckTypedEvent(dpy, EnterNotify, e))
     ;
-#if BORDER_PATCH
+#if BORDER_MODULE
   while (XCheckTypedWindowEvent(dpy, mouse.subwindow, MotionNotify, e))
     ;
 #endif
-#if TITLEBAR_PATCH
+#if TITLEBAR_MODULE
   if (mouse.subwindow == cur->t) {
     mouse.subwindow = cur->w;
     win_size(cur->w, &wx, &wy, &ww, &wh);
@@ -185,20 +241,20 @@ void notify_motion(XEvent *e) {
                     MAX(1, ww + (mouse.button == 3 ? xd : 0)),
                     MAX(1, wh + (mouse.button == 3 ? yd : 0)));
 
-#if TITLEBAR_PATCH
+#if TITLEBAR_MODULE
   if (cur->t)
     XMoveResizeWindow(
         dpy, cur->t,
 
         wx + (mouse.button == 1 ? xd : 0),
         wy + (mouse.button == 1 ? yd : 0) - TH,
-#if BORDER_PATCH
+#if BORDER_MODULE
         MAX(1, ww + 2 * BORDER_WIDTH + (mouse.button == 3 ? xd : 0)), TH);
 #else
         MAX(1, ww + (mouse.button == 3 ? xd : 0)), TH);
 #endif
 #endif
-#if ROUNDED_CORNERS_PATCH
+#if ROUNDED_CORNERS_MODULE
   if (mouse.button == 3) {
     win_round_corners(mouse.subwindow, ROUND_CORNERS);
   }
@@ -207,7 +263,6 @@ void notify_motion(XEvent *e) {
 
 void key_press(XEvent *e) {
   KeySym keysym = XkbKeycodeToKeysym(dpy, e->xkey.keycode, 0, 0);
-
   for (unsigned int i = 0; i < sizeof(keys) / sizeof(*keys); ++i)
     if (keys[i].keysym == keysym &&
         mod_clean(keys[i].mod) == mod_clean(e->xkey.state))
@@ -220,11 +275,73 @@ void button_press(XEvent *e) {
 
   win_size(e->xbutton.subwindow, &wx, &wy, &ww, &wh);
   XRaiseWindow(dpy, e->xbutton.subwindow);
-
+  #if BARFS_MODULE
+  moving_status("1");
+  #endif
   mouse = e->xbutton;
 }
 
-void button_release(XEvent *e) { mouse.subwindow = 0; }
+void button_release(XEvent *e) { 
+  mouse.subwindow = 0; 
+  #if BARFS_MODULE
+  moving_status("0");
+  #endif
+}
+
+#if LOG_MODULE
+void del_log() {
+  FILE *fpdel = fopen("/tmp/nsowm_log", "w");
+  if (!fpdel)
+    return;
+  fprintf(fpdel, "");
+  fclose(fpdel);
+}
+void log(char *message) {
+  char *newstr = malloc(strlen(message) + 2);
+  strcpy(newstr, message);
+  strcat(newstr, "\n");
+
+  FILE *fp = fopen("/tmp/nsowm_log", "a");
+  if (!fp)
+    return;
+  fprintf(fp, newstr);
+  free(newstr);
+  fclose(fp);
+}
+int win_count[];
+#endif
+
+#if TILING_MODULE
+int tiling[];
+
+void tile(const Arg arg) {
+   win_size(cur->w, &cur->wx, &cur->wy, &cur->ww, &cur->wh); 
+  if (!cur) 
+    return;
+  win_size(cur->w, &cur->wx, &cur->wy, &cur->ww, &cur->wh);
+  switch (win_count[ws])
+  {
+  case 1:
+    /* code */
+#if FIXBAR_MODULE
+    XMoveResizeWindow(dpy, cur->w, 0, 0 + BAR_HEIGHT, sw, sh - BAR_HEIGHT);
+#else
+    XMoveResizeWindow(dpy, cur->w, 0, 0, sw, sh);
+#endif
+    break;
+  case 2:
+  #if FIXBAR_MODULE
+    XMoveResizeWindow(dpy, cur->w, 0 + 800, 0 + BAR_HEIGHT, sw - 800, sh - BAR_HEIGHT);
+#else
+    XMoveResizeWindow(dpy, cur->w, 0, 0, sw, sh);
+#endif
+    break;
+  
+  default:
+    break;
+  }
+}
+#endif
 
 void win_add(Window w) {
   client *c;
@@ -246,9 +363,17 @@ void win_add(Window w) {
   }
 
   ws_save(ws);
+  #if LOG_MODULE
+  win_count[ws]++;
+  //char logmsg = win_count;
+  log("win_add executed");
+  //log(logmsg);
+  #endif
+
 }
 
 void win_del(Window w) {
+
   client *x = 0;
 
     for
@@ -265,15 +390,19 @@ void win_del(Window w) {
     if (x->prev)
       x->prev->next = x->next;
 
-#if TITLEBAR_PATCH
+#if TITLEBAR_MODULE
     title_del(x);
 #endif
     free(x);
     ws_save(ws);
+  #if LOG_MODULE
+  win_count[ws]--;
+  log("win_del executed");
+  #endif
 }
 
 void win_kill(const Arg arg) {
-#if NORMALKILL_PATCH
+#if NORMALKILL_MODULE
   if (!cur)
     return;
 
@@ -298,7 +427,7 @@ void win_center(const Arg arg) {
 
   win_size(cur->w, &(int){0}, &(int){0}, &ww, &wh);
   XMoveWindow(dpy, cur->w, (sw - ww) / 2, (sh - wh) / 2);
-#if TITLEBAR_PATCH
+#if TITLEBAR_MODULE
   if (cur->t)
     XMoveWindow(dpy, cur->t, (sw - ww) / 2, (sh - wh - TH * 2) / 2);
 #endif
@@ -310,40 +439,40 @@ void win_fs(const Arg arg) {
 
   if ((cur->f = cur->f ? 0 : 1)) {
     win_size(cur->w, &cur->wx, &cur->wy, &cur->ww, &cur->wh);
-#if FIXBAR_PATCH
+#if FIXBAR_MODULE
     XMoveResizeWindow(dpy, cur->w, 0, 0 + BAR_HEIGHT, sw, sh - BAR_HEIGHT);
 #else
     XMoveResizeWindow(dpy, cur->w, 0, 0, sw, sh);
 #endif
-#if TITLEBAR_PATCH
+#if TITLEBAR_MODULE
     XRaiseWindow(dpy, cur->w);
     title_del(cur);
 #endif
-#if BARFS_PATCH
+#if BARFS_MODULE
     fs_true();
 #endif
   } else {
-#if BARFS_PATCH
+#if BARFS_MODULE
     fs_false();
 #endif
     XMoveResizeWindow(dpy, cur->w, cur->wx, cur->wy, cur->ww, cur->wh);
-#if TITLEBAR_PATCH
+#if TITLEBAR_MODULE
     title_add(cur);
 #endif
   }
-#if ROUNDED_CORNERS_PATCH
+#if ROUNDED_CORNERS_MODULE
   win_round_corners(cur->w, cur->f ? 0 : ROUND_CORNERS);
 #endif
 }
 
-#if RESIZEFULLSCREEN_PATCH
+#if RESIZEFULLSCREEN_MODULE
 void win_resize_fullscreen(const Arg arg) {
   if (!cur)
     return;
 
   // if ((cur->f = cur->f ? 0 : 1)) {
   win_size(cur->w, &cur->wx, &cur->wy, &cur->ww, &cur->wh);
-#if FIXBAR_PATCH
+#if FIXBAR_MODULE
   XMoveResizeWindow(dpy, cur->w, 0, 0 + BAR_HEIGHT, sw, sh - BAR_HEIGHT);
 #else
   XMoveResizeWindow(dpy, cur->w, 0, 0, sw, sh);
@@ -359,14 +488,14 @@ void wrf(const Arg arg) {
 }
 #endif
 
-#if AUTOSTART_PATCH
+#if AUTOSTART_MODULE
 void auto_start(void) {
   // add autostart programms here
   system("nitrogen --restore");
 }
 #endif
 
-#if ROUNDED_CORNERS_PATCH
+#if ROUNDED_CORNERS_MODULE
 void win_round_corners(Window w, int rad) {
   unsigned int ww, wh, dia = 2 * rad;
 
@@ -403,7 +532,7 @@ void win_round_corners(Window w, int rad) {
 }
 #endif
 
-#if RESIZE_PATCH
+#if RESIZE_MODULE
 void win_move(const Arg arg) {
   int r = arg.com[0][0] == 'r';
   char m = arg.com[1][0];
@@ -430,7 +559,7 @@ void win_move(const Arg arg) {
 }
 #endif
 
-#if SPLIT_PATCH
+#if SPLIT_MODULE
 void split_win(const Arg arg) {
   char m = arg.com[0][0];
 
@@ -461,7 +590,7 @@ void win_to_ws(const Arg arg) {
   ws_sel(arg.i);
   win_add(cur->w);
   ws_save(arg.i);
-#if TITLEBAR_PATCH
+#if TITLEBAR_MODULE
   title_del(cur);
 #endif
 
@@ -472,12 +601,16 @@ void win_to_ws(const Arg arg) {
 
   if (list)
     win_focus(list);
+  #if LOG_MODULE
+  win_count[tmp]--;
+  win_count[ws]++;
+  #endif
 }
 
 void win_prev(const Arg arg) {
   if (!cur)
     return;
-#if TITLEBAR_PATCH
+#if TITLEBAR_MODULE
   if (cur->prev->t)
     XRaiseWindow(dpy, cur->prev->t);
 #endif
@@ -491,9 +624,9 @@ void win_next(const Arg arg) {
 
   XRaiseWindow(dpy, cur->next->w);
 
-#if TITLEBAR_PATCH
-  // if (cur->next->w)
-  //;
+#if TITLEBAR_MODULE
+  if (cur->next->w)
+  ;
   { XRaiseWindow(dpy, cur->next->t); }
 #endif
   win_focus(cur->next);
@@ -501,7 +634,7 @@ void win_next(const Arg arg) {
 
 void ws_go(const Arg arg) {
 
-#if BARFS_PATCH
+#if BARFS_MODULE
   create_dir();
 
   FILE *fp = fopen("/tmp/barfs/ws", "w");
@@ -518,7 +651,7 @@ void ws_go(const Arg arg) {
 
 #endif
 
-#if LAST_WS_PATCH
+#if LAST_WS_MODULE
   last_ws = ws;
 #endif
 
@@ -530,11 +663,11 @@ void ws_go(const Arg arg) {
   ws_save(ws);
   ws_sel(arg.i);
 
-#if !TITLEBAR_PATCH
+#if !TITLEBAR_MODULE
     for
       win XMapWindow(dpy, c->w);
 #endif
-#if TITLEBAR_PATCH
+#if TITLEBAR_MODULE
     for
       win {
         XMapWindow(dpy, c->w);
@@ -543,11 +676,11 @@ void ws_go(const Arg arg) {
 #endif
     ws_sel(tmp);
 
-#if !TITLEBAR_PATCH
+#if !TITLEBAR_MODULE
     for
       win XUnmapWindow(dpy, c->w);
 #endif
-#if TITLEBAR_PATCH
+#if TITLEBAR_MODULE
     for
       win {
         XUnmapWindow(dpy, c->w);
@@ -563,7 +696,7 @@ void ws_go(const Arg arg) {
       cur = 0;
 }
 
-#if EXISTING_CLIENTS_PATCH
+#if EXISTING_CLIENTS_MODULE
 void win_init(void) {
   Window *child;
   unsigned int i, n_child;
@@ -586,7 +719,7 @@ void win_init(void) {
 }
 #endif
 
-#if NEXT_WS_PATCH
+#if NEXT_WS_MODULE
 void ws_go_add(const Arg arg) {
   if (arg.i + ws > WS_COUNT || arg.i + ws < 1)
     return;
@@ -604,12 +737,12 @@ void configure_request(XEvent *e) {
                                      .height = ev->height,
                                      .sibling = ev->above,
                                      .stack_mode = ev->detail});
-#if ROUNDED_CORNERS_PATCH
+#if ROUNDED_CORNERS_MODULE
   win_round_corners(ev->window, ROUND_CORNERS);
 #endif
 }
 
-#if WINDOWS_PATCH
+#if WINDOWS_MODULE
 bool exists_win(Window w) {
   int tmp = ws;
   for (int i = 0; i < NUM_WS; ++i) {
@@ -629,7 +762,7 @@ bool exists_win(Window w) {
 
 void map_request(XEvent *e) {
   Window w = e->xmaprequest.window;
-#if WINDOWS_PATCH
+#if WINDOWS_MODULE
   if (exists_win(w))
     return;
 #endif
@@ -637,19 +770,19 @@ void map_request(XEvent *e) {
   win_size(w, &wx, &wy, &ww, &wh);
   win_add(w);
   cur = list->prev;
-#if BORDER_PATCH
+#if BORDER_MODULE
   XSetWindowBorder(dpy, w, getcolor(BORDER_COLOR));
   XConfigureWindow(dpy, w, CWBorderWidth,
                    &(XWindowChanges){.border_width = BORDER_WIDTH});
 #endif
   if (wx + wy == 0)
     win_center((Arg){0});
-#if ROUNDED_CORNERS_PATCH
+#if ROUNDED_CORNERS_MODULE
   win_round_corners(w, ROUND_CORNERS);
 #endif
   XMapWindow(dpy, w);
   win_focus(list->prev);
-#if TITLEBAR_PATCH
+#if TITLEBAR_MODULE
   title_add(cur);
 #endif
 }
@@ -702,11 +835,11 @@ void input_grab(Window root) {
 
   XFreeModifiermap(modmap);
 }
-#if LAST_WS_PATCH
+#if LAST_WS_MODULE
 void last_ws_go(const Arg arg) { ws_go((Arg){.i = last_ws}); }
 #endif
 
-#if ICCCM_PATCH
+#if ICCCM_MODULE
 // thanks to suckless for making implementing this suck less
 int status, format;
 unsigned char *data = NULL;
@@ -739,31 +872,42 @@ int main(void) {
   signal(SIGCHLD, SIG_IGN);
   XSetErrorHandler(xerror);
 
-#if !BORDER_PATCH
+#if !BORDER_MODULE
   int screen = DefaultScreen(dpy);
 #endif
 
   root = RootWindow(dpy, screen);
-#if BORDER_PATCH
+#if BORDER_MODULE
   sw = XDisplayWidth(dpy, screen) - (2 * BORDER_WIDTH);
   sh = XDisplayHeight(dpy, screen) - (2 * BORDER_WIDTH);
 #else
   sw = XDisplayWidth(dpy, screen);
   sh = XDisplayHeight(dpy, screen);
 #endif
+#if NBAR_MODULE
+  gc    = DefaultGC(dpy, screen);
+  XSelectInput(dpy,  root, SubstructureRedirectMask | PropertyChangeMask);
+#else
   XSelectInput(dpy, root, SubstructureRedirectMask);
+#endif
   XDefineCursor(dpy, root, XCreateFontCursor(dpy, 68));
   input_grab(root);
-#if EXISTING_CLIENTS_PATCH
+#if EXISTING_CLIENTS_MODULE
   win_init();
 #endif
-#if AUTOSTART_PATCH
+#if AUTOSTART_MODULE
   auto_start();
 #endif
-#if ICCCM_PATCH
+#if ICCCM_MODULE
   icccm_setup();
   set_wm_name("nsowm"); // java bug thingy
+  #if HOT_CORNERS_MODULE
+  corners();
+  #endif
 #endif
+  #if LOG_MODULE
+  del_log();
+  #endif
   while (1 && !XNextEvent(dpy, &ev)) // 1 && will forever be here.
     if (events[ev.type])
       events[ev.type](&ev);

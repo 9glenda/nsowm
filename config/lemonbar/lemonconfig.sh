@@ -8,12 +8,17 @@ var() {
     if [ $(cat /tmp/barfs/fs) -eq "1" ]; then 
     fs="[F]"
     else
-    fs="   "
+    fs="[ ]"
+    fi
+    if [ $(cat /tmp/barfs/moving) -eq "1" ]; then 
+    m="<m>"
+    else
+    m="< >"
     fi
     battery="$(cat /sys/class/power_supply/BAT1/capacity)%"
 }
 
 while [ 0 -eq 0 ];do
 var
-echo "$wslist $fs %{r} $battery" 
+echo "$wslist $fs $m %{r} $battery" 
 done
