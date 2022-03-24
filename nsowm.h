@@ -1,7 +1,7 @@
 #include "patches.h"
 #include <X11/Xlib.h>
 
-#if WINDOWS_PATCH
+#if WINDOWS_MODULE
 #define NUM_WS 10
 #endif
 #define win (client *t = 0, *c = list; c && t != list->prev; t = c, c = c->next)
@@ -36,13 +36,13 @@ typedef struct client {
   struct client *next, *prev;
   int f, wx, wy;
   unsigned int ww, wh;
-#if TITLEBAR_PATCH
+#if TITLEBAR_MODULE
   Window w, t;
 #else
   Window w;
 #endif
 } client;
-#if BORDER_PATCH
+#if BORDER_MODULE
 unsigned long getcolor(const char *col);
 #endif
 void button_press(XEvent *e);
@@ -66,42 +66,49 @@ void win_prev(const Arg arg);
 void win_next(const Arg arg);
 void win_to_ws(const Arg arg);
 void ws_go(const Arg arg);
-#if WINDOWS_PATCH
+#if NBAR_MODULE
+void notify_property(XEvent *e);
+void draw_bar();
+#endif
+#if WINDOWS_MODULE
 bool exists_win(Window w);
 #endif
-#if LAST_WS_PATCH
+#if LAST_WS_MODULE
 void last_ws_go(const Arg arg);
 #endif
-#if NEXT_WS_PATCH
+#if NEXT_WS_MODULE
 void ws_go_add(const Arg arg);
 #endif
 void quit(const Arg arg);
-#if ROUNDED_CORNERS_PATCH
+#if ROUNDED_CORNERS_MODULE
 void win_round_corners(Window w, int rad);
 #endif
-#if AUTOSTART_PATCH
+#if AUTOSTART_MODULE
 void auto_start(void);
 #endif
-#if RESIZE_PATCH
+#if RESIZE_MODULE
 void win_move(const Arg arg);
 #endif
-#if SPLIT_PATCH
+#if SPLIT_MODULE
 void split_win(const Arg arg);
 #endif
-#if TITLEBAR_PATCH
+#if TITLEBAR_MODULE
 void title_add(client *c);
 void title_del(client *c);
 #endif
-#if RESIZEFULLSCREEN_PATCH
+#if RESIZEFULLSCREEN_MODULE
 void win_resize_fullscreen(const Arg arg);
 #endif
-#if BARFS_PATCH
+#if BARFS_MODULE
 void creat_dir();
 void fs_true();
 void fs_false();
 #endif
-#if EXISTING_CLIENTS_PATCH
+#if EXISTING_CLIENTS_MODULE
 void win_init(void);
+#endif
+#if TILING_MODULE
+void tile(const Arg arg);
 #endif
 
 static int xerror() { return 0; }

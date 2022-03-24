@@ -5,21 +5,21 @@
 
 #define MOD Mod1Mask
 
-#if ROUNDED_CORNERS_PATCH // ROUNDED_CORNERS_PATCH
+#if ROUNDED_CORNERS_MODULE // ROUNDED_CORNERS_MODULE
 #define ROUND_CORNERS 3
-#endif // ROUNDED_CORNERS_PATCH
+#endif // ROUNDED_CORNERS_MODULE
 
-#if TITLEBAR_PATCH
+#if TITLEBAR_MODULE
 #define TH 90
 #define TC 255 + (255 << 8) + (255 << 16)
 #endif
 
-#if BORDER_PATCH
+#if BORDER_MODULE
 #define BORDER_COLOR "#9ff3ec"
 #define BORDER_WIDTH 10
 #endif
 
-#if FIXBAR_PATCH
+#if FIXBAR_MODULE
 #define BAR_HEIGHT 15
 #endif
 const char *menu[] = {"dmenu_run", 0};
@@ -31,7 +31,7 @@ const char *voldown[] = {"amixer", "sset", "Master", "5%-", 0};
 const char *volup[] = {"amixer", "sset", "Master", "5%+", 0};
 const char *volmute[] = {"amixer", "sset", "Master", "toggle", 0};
 const char *colors[] = {"bud", "/home/goldie/Pictures/Wallpapers", 0};
-#if MOUSE_MAPPING_PATCH
+#if MOUSE_MAPPING_MODULE
 static struct button buttons[] = {
     {MOD, Button1, win_raise, {0}},
     {MOD, Button1, win_move, {0}},
@@ -55,11 +55,14 @@ static struct key keys[] = {
     {MOD, XK_c, win_center, {0}},
     {MOD, XK_f, win_fs, {0}},
     {MOD | ShiftMask, XK_q, quit, {.i = 1}},
-    #if RESTARTING_PATCH
+    #if RESTARTING_MODULE
     {MOD | ShiftMask, XK_r, quit, {.i = 0}},
     #endif
 
-    #if RESIZEFULLSCREEN_PATCH
+    #if TILING_MODULE
+    {MOD, XK_t, tile, {0}},
+    #endif
+    #if RESIZEFULLSCREEN_MODULE
     {MOD|ShiftMask, XK_f, win_resize_fullscreen, {0}},
     #endif
     {Mod1Mask,           XK_Tab, win_next,   {0}},
@@ -75,14 +78,14 @@ static struct key keys[] = {
     {0, XF86XK_AudioMute, run, {.com = volmute}},
     {0, XF86XK_MonBrightnessUp, run, {.com = briup}},
     {0, XF86XK_MonBrightnessDown, run, {.com = bridown}},
-    #if LAST_WS_PATCH
+    #if LAST_WS_MODULE
     {MOD, XK_b, last_ws_go, {0}},
     #endif
-    #if NEXT_WS_PATCH
+    #if NEXT_WS_MODULE
     {MOD, XK_z, ws_go_add, {.i = 1}},
     {MOD | ShiftMask, XK_z, ws_go_add, {.i = -1}},
     #endif
-#if RESIZE_PATCH
+#if RESIZE_MODULE
     {MOD, XK_k, win_move, {.com = (const char *[]){"move", "n"}, .i = 10}},
     {MOD, XK_j, win_move, {.com = (const char *[]){"move", "s"}, .i = 10}},
     {MOD, XK_l, win_move, {.com = (const char *[]){"move", "e"}, .i = 10}},
@@ -106,7 +109,7 @@ static struct key keys[] = {
      {.com = (const char *[]){"resize", "w"}, .i = 10}},
 #endif
 
-#if SPLIT_PATCH
+#if SPLIT_MODULE
     {MOD | ControlMask, XK_k, split_win, {.com = (const char *[]){"n"}}},
     {MOD | ControlMask, XK_j, split_win, {.com = (const char *[]){"s"}}},
     {MOD | ControlMask, XK_l, split_win, {.com = (const char *[]){"e"}}},
@@ -127,9 +130,9 @@ static struct key keys[] = {
     {MOD | ShiftMask, XK_6, win_to_ws, {.i = 6}},
 };
 #endif
-#if NEXT_WS_PATCH || EXISTING_CLIENTS_PATCH || BARFS_PATCH
+#if NEXT_WS_MODULE || EXISTING_CLIENTS_MODULE || BARFS_MODULE
 const int WS_COUNT = 6;
 #endif
-#if EXISTING_CLIENTS_PATCH
+#if EXISTING_CLIENTS_MODULE
 const bool CYCLE_WS = true;
 #endif

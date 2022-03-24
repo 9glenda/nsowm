@@ -39,9 +39,12 @@ cargo-dep:
 apt-dep:
 	apt install libx11-dev libxft-dev libxext-dev suckless-tools rustc
 
-
-
 debian: apt-dep cargo-dep
 
+arch:
+	pacman -Sy alacritty dmenu go lemonbar nitrogen picom scrot
+
+xmenu:
+	sh dependencies/compile-xmenu.sh
 
 .PHONY: all install uninstall clean desktop
