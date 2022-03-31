@@ -134,5 +134,5 @@ static struct key keys[] = {
 const int WS_COUNT = 6;
 #endif
 #if EXISTING_CLIENTS_MODULE
-const bool CYCLE_WS = true;
+const int CYCLE_WS = 1;
 #endif
