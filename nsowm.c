@@ -491,7 +491,9 @@ void wrf(const Arg arg) {
 #if AUTOSTART_MODULE
 void auto_start(void) {
   // add autostart programms here
-  system("nitrogen --restore");
+  // system("nitrogen --restore");
+  // struct passwd *p = getpwuid(getuid());
+  system("exec /home/glenda/.config/autostart/nsowm.sh");
 }
 #endif
 

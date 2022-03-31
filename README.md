@@ -26,8 +26,6 @@ The next genergation of sowm
 
 <br>
 
-Patches available here: https://github.com/dylanaraps/sowm/pulls
-
 ## Default Keybindings
 
 **Window Management**

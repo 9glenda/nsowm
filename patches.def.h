@@ -6,6 +6,7 @@
 // diff/autostart.diff
 // https://patch-diff.githubusercontent.com/raw/dylanaraps/sowm/pull/106.patch
 // autostart
+// executes /home/glenda/.config/autostart/nsowm.sh 
 #define AUTOSTART_MODULE 0
 
 // diff/resize.diff
@@ -68,7 +69,7 @@
 // https://patch-diff.githubusercontent.com/raw/dylanaraps/sowm/pull/64.patch
 // https://github.com/dylanaraps/sowm/pull/64
 // Manages clients which exist prior to sowm.
-#define EXISTING_CLIENTS_MODULE 0
+#define EXISTING_CLIENTS_MODULE 1
 
 // no diff
 // no url
@@ -92,8 +93,8 @@
 
 // no diff
 // no url
-// just sets the name of teh windowmanager
-#define ICCCM_MODULE 1
+// just sets the name of the windowmanager
+#define ICCCM_MODULE 0
 
 // no diff
 // no url
