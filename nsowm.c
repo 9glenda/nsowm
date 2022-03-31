@@ -709,7 +709,7 @@ void win_init(void) {
     XMapWindow(dpy, child[i]);
     win_add(child[i]);
   }
-  if (CYCLE_WS) {
+  if (CYCLE_WS == 1) {
     for (i = 1; i < WS_COUNT + 1; i++) {
       int current = ws;
       ws_go((Arg){.i = i});
