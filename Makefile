@@ -1,6 +1,4 @@
 include config.mk
-CFLAGS += -std=c99 -Wall -Wextra -pedantic -Wold-style-declaration
-CFLAGS += -Wmissing-prototypes -Wno-unused-parameter
 
 all: nsowm
 
