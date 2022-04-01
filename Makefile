@@ -33,9 +33,9 @@ cargo-dep:
 	cargo install alacritty
 
 apt-dep:
-	apt install libx11-dev libxft-dev libxext-dev suckless-tools rustc
+	apt install libx11-dev libxft-dev libxext-dev suckless-tools rustc go 
 
-debian: apt-dep cargo-dep
+debian: apt-dep 
 
 arch:
 	pacman -Sy alacritty dmenu go lemonbar nitrogen picom scrot
