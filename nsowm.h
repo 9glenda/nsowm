@@ -110,5 +110,9 @@ void win_init(void);
 #if TILING_MODULE
 void tile(const Arg arg);
 #endif
-
+#if MENU_MODULE
+void mouse_menu(void);
+void open_menu(const Arg arg);
+#endif
+//void gsowm(void);
 static int xerror() { return 0; }

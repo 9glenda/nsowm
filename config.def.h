@@ -81,6 +81,7 @@ static struct key keys[] = {
     #if LAST_WS_MODULE
     {MOD, XK_b, last_ws_go, {0}},
     #endif
+
     #if NEXT_WS_MODULE
     {MOD, XK_z, ws_go_add, {.i = 1}},
     {MOD | ShiftMask, XK_z, ws_go_add, {.i = -1}},
@@ -108,7 +109,9 @@ static struct key keys[] = {
      win_move,
      {.com = (const char *[]){"resize", "w"}, .i = 10}},
 #endif
-
+#if MENU_MODULE 
+    {MOD, XK_m, open_menu, {0}},
+#endif 
 #if SPLIT_MODULE
     {MOD | ControlMask, XK_k, split_win, {.com = (const char *[]){"n"}}},
     {MOD | ControlMask, XK_j, split_win, {.com = (const char *[]){"s"}}},

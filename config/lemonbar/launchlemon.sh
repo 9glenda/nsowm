@@ -1,3 +1,3 @@
 #!/bin/sh
-killall lemonbar
+pkill lemonbar
 lemonconfig | lemonbar -p -d | sh &

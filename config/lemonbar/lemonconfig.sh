@@ -19,6 +19,7 @@ var() {
 }
 
 while [ 0 -eq 0 ];do
+sleep 0.06
 var
 echo "$wslist $fs $m %{r} $battery" 
 done
