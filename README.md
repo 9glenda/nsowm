@@ -1,8 +1,9 @@
-# nsowm (neo *~~Simple~~ Shitty Opinionated Window Manager*)
-
+<h1 align="center">Welcome to nsowm</h1>
+<h4 align="left">The next generation of <a href="https://github.com/dylanaraps/sowm">sowm</a></h4>
 <a href="https://github/com/luis-07/nsowm/screenshots/forrest-1.png"><img src="screenshots/forrest-1.png" width="43%" align="right"></a>
 
-The next genergation of sowm
+> A minimal floating window manager 
+
 
 - Floating only.
 - Fullscreen toggle.
