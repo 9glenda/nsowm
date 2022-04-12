@@ -6,7 +6,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 #endif
-#if ICCCM_MODULE | NBAR_MODULE
+#if ICCCM_MODULE | MENU_MODULE
 #include <X11/Xatom.h>
 #include <stdarg.h>
 #include <stdio.h>
@@ -95,11 +95,12 @@ void create_dir() {
 
 void fs_true() {
   create_dir();
+
   FILE *fp = fopen("/tmp/barfs/fs", "w");
   if (!fp)
     return;
   fprintf(fp, "1");
-  fclose(fp);
+  fclose(fp); 
 }
 
 void fs_false() {
@@ -117,6 +118,7 @@ void moving_status(char *state) {
     return;
   fprintf(fp, state);
   fclose(fp);
+
 }
 
 #endif
@@ -211,8 +213,9 @@ void notify_enter(XEvent *e) {
   while (XCheckTypedEvent(dpy, EnterNotify, e))
     ;
 #if BORDER_MODULE
-  while (XCheckTypedWindowEvent(dpy, mouse.subwindow, MotionNotify, e))
-    ;
+  // this code is making nsowm crash
+ while (XCheckTypedWindowEvent(dpy, mouse.subwindow, MotionNotify, e))
+ ;
 #endif
 #if TITLEBAR_MODULE
   if (mouse.subwindow == cur->t) {
@@ -228,8 +231,9 @@ void notify_motion(XEvent *e) {
   if (!mouse.subwindow || cur->f)
     return;
 
-  while (XCheckTypedEvent(dpy, MotionNotify, e))
-    ;
+  // trying to fix crash
+  //while (XCheckTypedEvent(dpy, MotionNotify, e))
+  //;
 
   int xd = e->xbutton.x_root - mouse.x_root;
   int yd = e->xbutton.y_root - mouse.y_root;
@@ -395,10 +399,12 @@ void win_del(Window w) {
 #endif
     free(x);
     ws_save(ws);
+
   #if LOG_MODULE
   win_count[ws]--;
   log("win_del executed");
   #endif
+
 }
 
 void win_kill(const Arg arg) {
@@ -419,6 +425,10 @@ void win_kill(const Arg arg) {
   if (cur)
     XKillClient(dpy, cur->w);
 #endif
+  #if BARFS_MODUE
+    if (!cur)
+      fs_false();
+  #endif
 }
 
 void win_center(const Arg arg) {
@@ -696,6 +706,10 @@ void ws_go(const Arg arg) {
       win_focus(list);
     else
       cur = 0;
+    #if BARFS_MODULE
+    if (!cur)
+      fs_false();
+    #endif
 }
 
 #if EXISTING_CLIENTS_MODULE
@@ -863,9 +877,74 @@ void set_wm_name(char *wm_name) {
                   (unsigned char *)wm_name, strlen(wm_name));
 }
 // fullscreen
+//
+#endif
+
+#if MENU_MODULE
+void mouse_menu(void) {
+  unsigned button;
+  button = Button3;
+  XEvent ev;
+  const char *msg = "hello";
+  Window menu_window; 
+  menu_window = XCreateSimpleWindow(dpy, root, 10, 10, 100, 100, 1, BlackPixel(dpy,screen), WhitePixel(dpy,screen));
+#define	MenuMask (ButtonPressMask|ButtonReleaseMask\
+	|ExposureMask|KeyPressMask)
+
+  XSelectInput(dpy,menu_window,MenuMask);
+  XMapWindow(dpy,menu_window);
+  int loop = 1;
+	 while (loop) {
+      XNextEvent(dpy, &ev);
+      if (ev.type == Expose) {
+         XFillRectangle(dpy,  menu_window, DefaultGC(dpy,  screen) , 20, 20, 10, 10);
+         XDrawString(dpy,  menu_window, DefaultGC(dpy,  screen) , 10, 50, msg, strlen(msg));
+
+      }
+      if (ev.type == KeyPress) {
+	loop = 0;
+	break;
+      }
+   }
+
+		/*
+  int loop = 1;
+      XNextEvent(dpy,  &ev);
+   while (loop) {
+
+      switch(ev.type) {
+		case Expose:
+ break;
+      case KeyPress:
+	 	system("alacritty -e nvim");
+		loop = 0;
+		break;
+		
+	      case ButtonPress: 
+	if (ev.xbutton.button == button) {
+	  system("alacritty -e htop");
+
+         loop = 0; 
+	 
+	}
+	break;
+
+
+   }
+*/
+
+  XUnmapWindow(dpy, menu_window);
+  XDestroyWindow(dpy, menu_window);
+  system("alacritty -e neofetch");
+}
+void open_menu(const Arg arg) {
+  mouse_menu();
+}
 
 #endif
-int main(void) {
+
+int main(void) { 
+
   XEvent ev;
 
   if (!(dpy = XOpenDisplay(0)))
@@ -910,7 +989,8 @@ int main(void) {
   #if LOG_MODULE
   del_log();
   #endif
-  while (1 && !XNextEvent(dpy, &ev)) // 1 && will forever be here.
+
+	  while (1 && !XNextEvent(dpy, &ev)) // 1 && will forever be here.
     if (events[ev.type])
       events[ev.type](&ev);
 }

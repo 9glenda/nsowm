@@ -9,7 +9,7 @@ patches.h:
 	cp patches.def.h patches.h
 
 nsowm: nsowm.c nsowm.h config.h patches.h Makefile
-	$(CC) -O3 $(CFLAGS) -o $@ $< -lX11 -lXext $(LDFLAGS)
+	$(CC) -g -O3 $(CFLAGS) -o $@ $< -lX11 -lXext $(LDFLAGS)
 
 install: all
 	install -Dm755 nsowm $(PREFIX)$(BINDIR)/nsowm
